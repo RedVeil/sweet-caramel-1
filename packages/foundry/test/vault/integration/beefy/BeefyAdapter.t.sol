@@ -5,9 +5,11 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { BeefyAdapter, SafeERC20, IERC20, IERC20Metadata, Math, IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "../../../../src/vault/adapter/beefy/BeefyAdapter.sol";
+import { BeefyAdapter, SafeERC20, IERC20, IERC20Metadata, IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "../../../../src/vault/adapter/beefy/BeefyAdapter.sol";
 import { BeefyTestConfigStorage, BeefyTestConfig } from "./BeefyTestConfigStorage.sol";
-import { AbstractAdapterTest, ITestConfigStorage, IAdapter } from "../abstract/AbstractAdapterTest.sol";
+import { AbstractAdapterTest, ITestConfigStorage, IAdapter, Math } from "../abstract/AbstractAdapterTest.sol";
+import { IPermissionRegistry, Permission } from "../../../../src/interfaces/vault/IPermissionRegistry.sol";
+import { PermissionRegistry } from "../../../../src/vault/PermissionRegistry.sol";
 
 contract BeefyAdapterTest is AbstractAdapterTest {
   using Math for uint256;
@@ -15,6 +17,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
   IBeefyBooster beefyBooster;
   IBeefyVault beefyVault;
   IBeefyBalanceCheck beefyBalanceCheck;
+  IPermissionRegistry permissionRegistry;
 
   function setUp() public {
     uint256 forkId = vm.createSelectFork(vm.rpcUrl("polygon"));
@@ -32,12 +35,16 @@ contract BeefyAdapterTest is AbstractAdapterTest {
   function _setUpTest(bytes memory testConfig) internal {
     createAdapter();
 
-    (address _beefyVault, address _beefyBooster, ) = abi.decode(testConfig, (address, address, uint256));
+    (address _beefyVault, address _beefyBooster) = abi.decode(testConfig, (address, address));
     beefyVault = IBeefyVault(_beefyVault);
     beefyBooster = IBeefyBooster(_beefyBooster);
     beefyBalanceCheck = IBeefyBalanceCheck(_beefyBooster == address(0) ? _beefyVault : _beefyBooster);
 
-    setUpBaseTest(IERC20(IBeefyVault(beefyVault).want()), adapter, address(0), 10, "Beefy ", true);
+    // Endorse Beefy Vault
+    permissionRegistry = IPermissionRegistry(address(new PermissionRegistry(address(this))));
+    setPermission(_beefyVault, true, false);
+
+    setUpBaseTest(IERC20(IBeefyVault(beefyVault).want()), adapter, address(permissionRegistry), 10, "Beefy ", true);
 
     vm.label(_beefyVault, "beefyVault");
     vm.label(_beefyBooster, "beefyBooster");
@@ -85,6 +92,18 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     );
   }
 
+  function setPermission(
+    address target,
+    bool endorsed,
+    bool rejected
+  ) public {
+    address[] memory targets = new address[](1);
+    Permission[] memory permissions = new Permission[](1);
+    targets[0] = target;
+    permissions[0] = Permission(endorsed, rejected);
+    permissionRegistry.setPermissions(targets, permissions);
+  }
+
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
     //////////////////////////////////////////////////////////////*/
@@ -106,17 +125,18 @@ contract BeefyAdapterTest is AbstractAdapterTest {
 
     // Test Beefy Config Boundaries
     createAdapter();
-    (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
-      testConfigStorage.getTestConfig(0),
-      (address, address, uint256)
-    );
+    (address _beefyVault, address _beefyBooster) = abi.decode(testConfigStorage.getTestConfig(0), (address, address));
+    setPermission(_beefyVault, false, false);
 
-    vm.expectRevert(abi.encodeWithSelector(BeefyAdapter.InvalidBeefyWithdrawalFee.selector, 51));
+    vm.expectRevert(abi.encodeWithSelector(BeefyAdapter.NotEndorsed.selector, _beefyVault));
     adapter.initialize(
       abi.encode(asset, address(this), strategy, 0, sigs, ""),
-      address(0),
-      abi.encode(_beefyVault, _beefyBooster, uint256(51))
+      address(permissionRegistry),
+      abi.encode(_beefyVault, _beefyBooster)
     );
+
+    setPermission(_beefyVault, true, false);
+    setPermission(address(0x3af3563Ba5C68EB7DCbAdd2dF0FcE4CC9818e75c), true, false);
 
     // Using Retired USD+-MATIC vLP vault on polygon
     vm.expectRevert(
@@ -127,8 +147,8 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     );
     adapter.initialize(
       abi.encode(asset, address(this), strategy, 0, sigs, ""),
-      address(0),
-      abi.encode(address(0x3af3563Ba5C68EB7DCbAdd2dF0FcE4CC9818e75c), _beefyBooster, _beefyWithdrawalFee)
+      address(permissionRegistry),
+      abi.encode(address(0x3af3563Ba5C68EB7DCbAdd2dF0FcE4CC9818e75c), _beefyBooster)
     );
 
     // Using stMATIC-MATIC vault Booster on polygon
@@ -140,8 +160,8 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     );
     adapter.initialize(
       abi.encode(asset, address(this), strategy, 0, sigs, ""),
-      address(0),
-      abi.encode(_beefyVault, address(0xBb77dDe3101B8f9B71755ABe2F69b64e79AE4A41), _beefyWithdrawalFee)
+      address(permissionRegistry),
+      abi.encode(_beefyVault, address(0xBb77dDe3101B8f9B71755ABe2F69b64e79AE4A41))
     );
   }
 

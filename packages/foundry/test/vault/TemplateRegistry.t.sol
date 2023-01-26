@@ -5,25 +5,28 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 import { TemplateRegistry, Template } from "../../src/vault/TemplateRegistry.sol";
-import { EndorsementRegistry } from "../../src/vault/EndorsementRegistry.sol";
 import { ClonableWithInitData } from "../utils/mocks/ClonableWithInitData.sol";
 import { ClonableWithoutInitData } from "../utils/mocks/ClonableWithoutInitData.sol";
 
 contract TemplateRegistryTest is Test {
   TemplateRegistry registry;
 
-  bytes32 public constant ENDORSEMENT_REGISTRY = keccak256("EndorsementRegistry");
-
   address nonOwner = address(0x666);
-  bytes32 templateType = "templateType";
+  bytes32 templateCategory = "templateCategory";
   bytes32 templateId = "ClonableWithInitData";
   string metadataCid = "cid";
 
   address[] addressArray;
   bytes4[8] reqSigs;
-  event TemplateTypeAdded(bytes32 templateType);
-  event TemplateAdded(bytes32 templateType, bytes32 templateId, address implementation);
-  event TemplateUpdated(bytes32 templateType, bytes32 templateId);
+  event TemplateCategoryAdded(bytes32 templateCategory);
+  event TemplateAdded(bytes32 templateCategory, bytes32 templateId, address implementation);
+  event TemplateUpdated(bytes32 templateCategory, bytes32 templateId);
+  event TemplateEndorsementToggled(
+    bytes32 templateCategory,
+    bytes32 templateId,
+    bool oldEndorsement,
+    bool newEndorsement
+  );
 
   function setUp() public {
     registry = new TemplateRegistry(address(this));
@@ -31,48 +34,69 @@ contract TemplateRegistryTest is Test {
   }
 
   /*//////////////////////////////////////////////////////////////
-                          ADD_TEMPLATE_TYPE
+                              HELPER
     //////////////////////////////////////////////////////////////*/
-  function test__addTemplateType() public {
-    vm.expectEmit(true, true, true, false, address(registry));
-    emit TemplateTypeAdded(templateType);
 
-    registry.addTemplateType(templateType);
-
-    bytes32[] memory templateTypes = registry.getTemplateTypes();
-    assertEq(templateTypes.length, 1);
-    assertEq(templateTypes[0], templateType);
-    assertTrue(registry.templateTypeExists(templateType));
-  }
-
-  function testFail__addTemplateType_nonOwner() public {
-    vm.prank(nonOwner);
-    registry.addTemplateType(templateType);
-  }
-
-  function testFail__addTemplateType_templateType_already_exists() public {
-    registry.addTemplateType(templateType);
-
-    vm.expectRevert(TemplateRegistry.TemplateTypeExists.selector);
-    registry.addTemplateType(templateType);
+  function addTemplate(address implementation) public {
+    registry.addTemplateCategory(templateCategory);
+    registry.addTemplate(
+      templateCategory,
+      templateId,
+      Template({
+        implementation: implementation,
+        endorsed: false,
+        metadataCid: metadataCid,
+        requiresInitData: true,
+        registry: address(0x2222),
+        requiredSigs: reqSigs
+      })
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
-                          ADD_TEMPLATE
+                        ADD TEMPLATE TYPE
+    //////////////////////////////////////////////////////////////*/
+  function test__addTemplateCategory() public {
+    vm.expectEmit(true, true, true, false, address(registry));
+    emit TemplateCategoryAdded(templateCategory);
+
+    registry.addTemplateCategory(templateCategory);
+
+    bytes32[] memory templateCategories = registry.getTemplateCategories();
+    assertEq(templateCategories.length, 1);
+    assertEq(templateCategories[0], templateCategory);
+    assertTrue(registry.templateCategoryExists(templateCategory));
+  }
+
+  function testFail__addTemplateCategory_nonOwner() public {
+    vm.prank(nonOwner);
+    registry.addTemplateCategory(templateCategory);
+  }
+
+  function testFail__addTemplateCategory_templateCategory_already_exists() public {
+    registry.addTemplateCategory(templateCategory);
+
+    vm.expectRevert(TemplateRegistry.TemplateCategoryExists.selector);
+    registry.addTemplateCategory(templateCategory);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          ADD TEMPLATE
     //////////////////////////////////////////////////////////////*/
 
   function test__addTemplate() public {
-    registry.addTemplateType(templateType);
+    registry.addTemplateCategory(templateCategory);
     ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
 
     vm.expectEmit(true, true, true, false, address(registry));
-    emit TemplateAdded(templateType, templateId, address(clonableWithInitData));
+    emit TemplateAdded(templateCategory, templateId, address(clonableWithInitData));
 
     registry.addTemplate(
-      templateType,
+      templateCategory,
       templateId,
       Template({
         implementation: address(clonableWithInitData),
+        endorsed: true,
         metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
@@ -80,29 +104,32 @@ contract TemplateRegistryTest is Test {
       })
     );
 
-    Template memory template = registry.getTemplate(templateType, templateId);
+    Template memory template = registry.getTemplate(templateCategory, templateId);
     assertEq(template.implementation, address(clonableWithInitData));
+    // Always set endorsed to false when adding a template
+    assertEq(template.endorsed, false);
     assertEq(template.metadataCid, metadataCid);
     assertEq(template.requiresInitData, true);
     assertEq(template.registry, address(0x2222));
     assertEq(template.requiredSigs[0], reqSigs[0]);
     assertEq(template.requiredSigs[7], reqSigs[7]);
 
-    bytes32[] memory templateIds = registry.getTemplateIds(templateType);
+    bytes32[] memory templateIds = registry.getTemplateIds(templateCategory);
     assertEq(templateIds.length, 1);
     assertEq(templateIds[0], templateId);
 
     assertTrue(registry.templateExists(templateId));
   }
 
-  function testFail__addTemplate_templateType_doesnt_exists() public {
+  function testFail__addTemplate_templateCategory_doesnt_exists() public {
     ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
 
     registry.addTemplate(
-      templateType,
+      templateCategory,
       templateId,
       Template({
         implementation: address(clonableWithInitData),
+        endorsed: false,
         metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
@@ -112,31 +139,49 @@ contract TemplateRegistryTest is Test {
   }
 
   function testFail__addTemplate_template_already_exists() public {
-    registry.addTemplateType(templateType);
     ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
+    addTemplate(address(clonableWithInitData));
 
     registry.addTemplate(
-      templateType,
+      templateCategory,
       templateId,
       Template({
         implementation: address(clonableWithInitData),
+        endorsed: false,
         metadataCid: metadataCid,
         requiresInitData: true,
         registry: address(0x2222),
         requiredSigs: reqSigs
       })
     );
+  }
 
-    registry.addTemplate(
-      templateType,
-      templateId,
-      Template({
-        implementation: address(clonableWithInitData),
-        metadataCid: metadataCid,
-        requiresInitData: true,
-        registry: address(0x2222),
-        requiredSigs: reqSigs
-      })
-    );
+  /*//////////////////////////////////////////////////////////////
+                    TOGGLE TEMPLATE ENDORSEMENT
+    //////////////////////////////////////////////////////////////*/
+
+  function test__toggleTemplateEndorsement() public {
+    ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
+    addTemplate(address(clonableWithInitData));
+
+    vm.expectEmit(true, true, true, false, address(registry));
+    emit TemplateEndorsementToggled(templateCategory, templateId, false, true);
+
+    registry.toggleTemplateEndorsement(templateCategory, templateId);
+
+    Template memory template = registry.getTemplate(templateCategory, templateId);
+    assertTrue(template.endorsed);
+  }
+
+  function testFail__toggleTemplateEndorsement_templateId_doesnt_exist() public {
+    registry.toggleTemplateEndorsement(templateCategory, templateId);
+  }
+
+  function testFail__toggleTemplateEndorsement_nonOwner() public {
+    ClonableWithInitData clonableWithInitData = new ClonableWithInitData();
+    addTemplate(address(clonableWithInitData));
+
+    vm.prank(nonOwner);
+    registry.toggleTemplateEndorsement(templateCategory, templateId);
   }
 }

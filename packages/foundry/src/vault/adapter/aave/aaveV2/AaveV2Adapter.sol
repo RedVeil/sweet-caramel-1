@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 
 import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../../abstracts/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../abstracts/WithRewards.sol";
-import { ILendingPool, IAaveMining, IAToken } from "./IAaveV2.sol";
+import { ILendingPool, IAaveMining, IAToken, IProtocolDataProvider } from "./IAaveV2.sol";
 import { DataTypes } from "./lib.sol";
 
 /**
@@ -46,24 +46,22 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   /**
    * @notice Initialize a new AaveV2 Adapter.
    * @param adapterInitData Encoded data for the base adapter initialization.
-   * @param aaveV2InitData Aave wrapped asset. Can also be used to get lendingPool and aaveMining.
-   * @dev `_aToken` - The underlying asset supplied to and wrapped by Aave.
-   * @dev `_lendingPool` - The lending pool.
-   * @dev `_aaveMining` - An optional liquidity mining contract to boost yield.
+   * @param aaveDataProvider Encoded data for the base adapter initialization.
    * @dev This function is called by the factory contract when deploying a new vault.
    */
 
   function initialize(
     bytes memory adapterInitData,
-    address,
-    bytes memory aaveV2InitData
+    address aaveDataProvider,
+    bytes memory
   ) public {
     __AdapterBase_init(adapterInitData);
 
     _name = string.concat("Popcorn AaveV2", IERC20Metadata(asset()).name(), " Adapter");
     _symbol = string.concat("popB-", IERC20Metadata(asset()).symbol());
 
-    aToken = IAToken(abi.decode(aaveV2InitData, (address)));
+    (address _aToken, , ) = IProtocolDataProvider(aaveDataProvider).getReserveTokensAddresses(asset());
+    aToken = IAToken(_aToken);
     if (aToken.UNDERLYING_ASSET_ADDRESS() != asset())
       revert DifferentAssets(aToken.UNDERLYING_ASSET_ADDRESS(), asset());
 
@@ -149,12 +147,6 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
     assets[0] = address(aToken);
     if (isActiveMining == false) revert MiningNotActive();
     aaveMining.claimRewards(assets, type(uint256).max, address(this));
-  }
-
-  function getApy() public view override returns (uint256) {
-    DataTypes.ReserveData memory data = lendingPool.getReserveData(asset());
-    uint128 supplyRate = data.currentLiquidityRate;
-    return uint256(supplyRate / 1e9);
   }
 
   /*//////////////////////////////////////////////////////////////

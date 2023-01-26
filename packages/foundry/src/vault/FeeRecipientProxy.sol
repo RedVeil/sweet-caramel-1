@@ -11,7 +11,7 @@ contract FeeRecipientProxy is Owned {
 
   uint256 public approvals;
 
-  function approveToken(IERC20[] memory tokens) external onlyOwner {
+  function approveToken(IERC20[] calldata tokens) external onlyOwner {
     uint8 len = uint8(tokens.length);
     for (uint8 i = 0; i < len; i++) {
       tokens[i].approve(owner, type(uint256).max);
@@ -19,7 +19,7 @@ contract FeeRecipientProxy is Owned {
     }
   }
 
-  function voidTokenApproval(IERC20[] memory tokens) external onlyOwner {
+  function voidTokenApproval(IERC20[] calldata tokens) external onlyOwner {
     uint8 len = uint8(tokens.length);
     for (uint8 i = 0; i < len; i++) {
       tokens[i].approve(owner, 0);

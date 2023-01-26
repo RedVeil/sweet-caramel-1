@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 import { Test } from "forge-std/Test.sol";
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { MockERC20 } from "./utils/mocks/MockERC20.sol";
-import { MultiRewardEscrow, IERC20 } from "../src/utils/MultiRewardEscrow.sol";
+import { MultiRewardEscrow, Escrow, IERC20 } from "../src/utils/MultiRewardEscrow.sol";
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
 
 contract MultiRewardEscrowTest is Test {
@@ -74,7 +74,7 @@ contract MultiRewardEscrowTest is Test {
 
     // Check Alice's Escrow
     bytes32[] memory aliceEscrowIds = escrow.getEscrowIdsByUser(alice);
-    MultiRewardEscrow.Escrow[] memory aliceEscrows = escrow.getEscrows(aliceEscrowIds);
+    Escrow[] memory aliceEscrows = escrow.getEscrows(aliceEscrowIds);
 
     assertEq(address(aliceEscrows[0].token), address(token1));
     assertEq(uint256(aliceEscrows[0].start), aliceLockTime);
@@ -86,7 +86,7 @@ contract MultiRewardEscrowTest is Test {
 
     // Check Bob's Escrow
     bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
-    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
 
     uint256 start = bobLockTime + 10;
     assertEq(address(bobEscrows[0].token), address(token2));
@@ -147,12 +147,37 @@ contract MultiRewardEscrowTest is Test {
     assertEq(token1.balanceOf(bob), 10 ether);
     assertEq(token2.balanceOf(bob), 1 ether);
 
-    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
 
     assertEq(uint256(bobEscrows[0].lastUpdateTime), bobClaimTime);
     assertEq(bobEscrows[0].balance, 0);
     assertEq(uint256(bobEscrows[1].lastUpdateTime), bobClaimTime);
     assertEq(bobEscrows[1].balance, 9 ether);
+  }
+
+  function test_claim_with_cliff() public {
+    vm.startPrank(alice);
+    escrow.lock(iToken1, bob, 10 ether, 10, 10);
+    vm.stopPrank();
+    bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
+
+    vm.warp(block.timestamp + 15);
+
+    vm.prank(bob);
+    escrow.claimRewards(bobEscrowIds);
+
+    // Expect to claim 50% instead of 100%
+    assertEq(token1.balanceOf(bob), 5 ether);
+  }
+
+  function testFail__claim_before_cliff() public {
+    vm.startPrank(alice);
+    escrow.lock(iToken1, bob, 10 ether, 10, 10);
+    vm.stopPrank();
+    bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
+
+    vm.prank(bob);
+    escrow.claimRewards(bobEscrowIds);
   }
 
   function testFail__zero_claim() public {
@@ -237,7 +262,7 @@ contract MultiRewardEscrowTest is Test {
 
     // Check Bob's Escrow
     bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
-    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
 
     assertEq(bobEscrows[0].balance, 10 ether - expectedFee1);
     assertEq(bobEscrows[0].initialBalance, 10 ether - expectedFee1);
@@ -294,7 +319,7 @@ contract MultiRewardEscrowTest is Test {
     _lockFunds();
 
     bytes32[] memory bobEscrowIds = escrow.getEscrowIdsByUser(bob);
-    MultiRewardEscrow.Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
+    Escrow[] memory bobEscrows = escrow.getEscrows(bobEscrowIds);
     assertEq(bobEscrows.length, 2);
   }
 
@@ -310,7 +335,7 @@ contract MultiRewardEscrowTest is Test {
     escrowIds[0] = bobEscrowIds[0];
     escrowIds[1] = aliceEscrowIds[0];
 
-    MultiRewardEscrow.Escrow[] memory escrows = escrow.getEscrows(escrowIds);
+    Escrow[] memory escrows = escrow.getEscrows(escrowIds);
     assertEq(escrows.length, 2);
     assertEq(escrows[0].account, bob);
     assertEq(escrows[1].account, alice);
@@ -318,7 +343,7 @@ contract MultiRewardEscrowTest is Test {
 
   function test__getEscrows_no_ids() public {
     bytes32[] memory escrowIds = new bytes32[](1);
-    MultiRewardEscrow.Escrow[] memory escrows = escrow.getEscrows(escrowIds);
+    Escrow[] memory escrows = escrow.getEscrows(escrowIds);
 
     assertEq(escrows.length, 1);
 

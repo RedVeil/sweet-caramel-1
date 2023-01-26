@@ -8,87 +8,71 @@ import { Owned } from "../utils/Owned.sol";
 import { VaultMetadata } from "../interfaces/vault/IVaultRegistry.sol";
 
 /**
- * @notice Registry for vaults deployed through VaultsFactory
- * @dev all mutative functions can only be called by VaultController
+ * @title   VaultRegistry
+ * @author  RedVeil
+ * @notice  Registers vaults with metadata for use by a frontend.
  */
 contract VaultRegistry is Owned {
   /*//////////////////////////////////////////////////////////////
                             IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
+  /// @param _owner `AdminProxy`
   constructor(address _owner) Owned(_owner) {}
 
   /*//////////////////////////////////////////////////////////////
                             REGISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  // vault address to vault metadata
-  mapping(address => VaultMetadata) public vaults;
+  // vault to metadata
+  mapping(address => VaultMetadata) public metadata;
 
   // asset to vault addresses
-  mapping(address => address[]) public assetVaults;
+  mapping(address => address[]) public vaultsByAsset;
 
   // addresses of all registered vaults
-  address[] public vaultAddresses;
+  address[] public allVaults;
 
   event VaultAdded(address vaultAddress, string metadataCID);
 
   error VaultAlreadyRegistered();
 
   /**
-   * @notice registers vault and adds address to mapping array of asset
-   * @param params - VaultMetadata constructed by Factory after deployVaultFromFactory called by Controller
+   * @notice Registers a new vault with Metadata which can be used by a frontend. Caller must be owner. (`VaultController`)
+   * @param _metadata VaultMetadata (See IVaultRegistry for more details)
    */
-  function registerVault(VaultMetadata memory params) external onlyOwner {
-    if (vaults[params.vaultAddress].vaultAddress != address(0)) revert VaultAlreadyRegistered();
+  function registerVault(VaultMetadata calldata _metadata) external onlyOwner {
+    if (metadata[_metadata.vault].vault != address(0)) revert VaultAlreadyRegistered();
 
-    vaults[params.vaultAddress] = params;
+    metadata[_metadata.vault] = _metadata;
 
-    vaultAddresses.push(params.vaultAddress);
-    assetVaults[IERC4626(params.vaultAddress).asset()].push(params.vaultAddress);
+    allVaults.push(_metadata.vault);
+    vaultsByAsset[IERC4626(_metadata.vault).asset()].push(_metadata.vault);
 
-    emit VaultAdded(params.vaultAddress, params.metadataCID);
+    emit VaultAdded(_metadata.vault, _metadata.metadataCID);
   }
 
   /*//////////////////////////////////////////////////////////////
                             VAULT VIEWING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  /**
-   * @notice returns VaultMetadata for registered vault address
-   * @param _vaultAddress - address of registered vault
-   */
-  function getVault(address _vaultAddress) external view returns (VaultMetadata memory) {
-    return vaults[_vaultAddress];
+  function getVault(address vault) external view returns (VaultMetadata memory) {
+    return metadata[vault];
   }
 
-  /**
-   * @notice returns array containing all vaults with asset token
-   * @param _asset - address of vault asset
-   */
-  function getVaultsByAsset(address _asset) external view returns (address[] memory) {
-    return assetVaults[_asset];
+  function getVaultsByAsset(address asset) external view returns (address[] memory) {
+    return vaultsByAsset[asset];
   }
 
-  /**
-   * @notice returns number of vaults in registry
-   */
   function getTotalVaults() external view returns (uint256) {
-    return vaultAddresses.length;
+    return allVaults.length;
   }
 
-  /**
-   * @notice returns all registered vault addresses
-   */
   function getRegisteredAddresses() external view returns (address[] memory) {
-    return vaultAddresses;
+    return allVaults;
   }
 
-  /**
-   * @notice returns VaultMetadata for registered vault address
-   * @param _vaultAddress - address of registered vault
-   */
-  function getSubmitter(address _vaultAddress) external view returns (VaultMetadata memory) {
-    return vaults[_vaultAddress];
+  function getSubmitter(address vault) external view returns (VaultMetadata memory) {
+    return metadata[vault];
   }
 }

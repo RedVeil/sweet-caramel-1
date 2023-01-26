@@ -8,7 +8,7 @@ import { MockERC20 } from "../utils/mocks/MockERC20.sol";
 import { MockERC4626 } from "../utils/mocks/MockERC4626.sol";
 import { Vault } from "../../src/vault/Vault.sol";
 import { IERC4626, IERC20 } from "../../src/interfaces/vault/IERC4626.sol";
-import { FeeStructure } from "../../src/interfaces/vault/IVault.sol";
+import { VaultFees } from "../../src/interfaces/vault/IVault.sol";
 import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
 
 contract VaultTest is Test {
@@ -27,8 +27,8 @@ contract VaultTest is Test {
   address alice = address(0xABCD);
   address bob = address(0xDCBA);
 
-  event NewFeesProposed(FeeStructure newFees, uint256 timestamp);
-  event ChangedFees(FeeStructure oldFees, FeeStructure newFees);
+  event NewFeesProposed(VaultFees newFees, uint256 timestamp);
+  event ChangedFees(VaultFees oldFees, VaultFees newFees);
   event FeeRecipientUpdated(address oldFeeRecipient, address newFeeRecipient);
   event NewAdapterProposed(IERC4626 newAdapter, uint256 timestamp);
   event ChangedAdapter(IERC4626 oldAdapter, IERC4626 newAdapter);
@@ -51,7 +51,7 @@ contract VaultTest is Test {
     vault.initialize(
       IERC20(address(asset)),
       IERC4626(address(adapter)),
-      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
       address(this)
     );
@@ -61,9 +61,14 @@ contract VaultTest is Test {
                               HELPER
     //////////////////////////////////////////////////////////////*/
 
-  function _setFees(uint256 depositFee, uint256 withdrawalFee, uint256 managementFee, uint256 performanceFee) internal {
+  function _setFees(
+    uint64 depositFee,
+    uint64 withdrawalFee,
+    uint64 managementFee,
+    uint64 performanceFee
+  ) internal {
     vault.proposeFees(
-      FeeStructure({
+      VaultFees({
         deposit: depositFee,
         withdrawal: withdrawalFee,
         management: managementFee,
@@ -86,7 +91,7 @@ contract VaultTest is Test {
     newVault.initialize(
       IERC20(address(asset)),
       IERC4626(address(adapter)),
-      FeeStructure({ deposit: 100, withdrawal: 100, management: 100, performance: 100 }),
+      VaultFees({ deposit: 100, withdrawal: 100, management: 100, performance: 100 }),
       feeRecipient,
       bob
     );
@@ -105,7 +110,7 @@ contract VaultTest is Test {
     assertEq(management, 100);
     assertEq(performance, 100);
     assertEq(newVault.feeRecipient(), feeRecipient);
-    assertEq(newVault.vaultShareHWM(), 1 ether);
+    assertEq(newVault.highWaterMark(), 1 ether);
     assertEq(newVault.feesUpdatedAt(), callTime);
 
     assertEq(newVault.quitPeriod(), 3 days);
@@ -120,7 +125,7 @@ contract VaultTest is Test {
     vault.initialize(
       IERC20(address(0)),
       IERC4626(address(adapter)),
-      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
       address(this)
     );
@@ -136,7 +141,7 @@ contract VaultTest is Test {
     vault.initialize(
       IERC20(address(asset)),
       IERC4626(address(newAdapter)),
-      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
       address(this)
     );
@@ -152,7 +157,7 @@ contract VaultTest is Test {
     vault.initialize(
       IERC20(address(asset)),
       IERC4626(address(newAdapter)),
-      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
       address(this)
     );
@@ -165,7 +170,7 @@ contract VaultTest is Test {
     vault.initialize(
       IERC20(address(asset)),
       IERC4626(address(adapter)),
-      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       address(0),
       address(this)
     );
@@ -665,9 +670,7 @@ contract VaultTest is Test {
     assertEq(vault.balanceOf(feeRecipient), expectedFeeInShares);
 
     // High Water Mark should remain unchanged
-    assertEq(vault.vaultShareHWM(), 1 ether);
-    // AssetsCheckpoint should remain unchanged
-    assertEq(vault.assetsCheckpoint(), depositAmount);
+    assertEq(vault.highWaterMark(), 1 ether);
   }
 
   function test__performanceFee(uint128 amount) public {
@@ -694,9 +697,7 @@ contract VaultTest is Test {
     assertEq(vault.balanceOf(feeRecipient), expectedFeeInShares);
 
     // There should be a new High Water Mark
-    assertEq(vault.vaultShareHWM(), (depositAmount + amount).mulDivDown(depositAmount, depositAmount));
-    // AssetsCheckpoint should be advanced
-    assertEq(vault.assetsCheckpoint(), depositAmount + amount);
+    assertEq(vault.highWaterMark(), (depositAmount + amount).mulDivDown(depositAmount, depositAmount));
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -705,13 +706,13 @@ contract VaultTest is Test {
 
   // Propose Fees
   function test__proposeFees() public {
-    FeeStructure memory newFeeStructure = FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
+    VaultFees memory newVaultFees = VaultFees({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
 
     uint256 callTime = block.timestamp;
     vm.expectEmit(false, false, false, true, address(vault));
-    emit NewFeesProposed(newFeeStructure, callTime);
+    emit NewFeesProposed(newVaultFees, callTime);
 
-    vault.proposeFees(newFeeStructure);
+    vault.proposeFees(newVaultFees);
 
     assertEq(vault.proposedFeeTime(), callTime);
     (uint256 deposit, uint256 withdrawal, uint256 management, uint256 performance) = vault.proposedFees();
@@ -722,27 +723,27 @@ contract VaultTest is Test {
   }
 
   function testFail__proposeFees_nonOwner() public {
-    FeeStructure memory newFeeStructure = FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
+    VaultFees memory newVaultFees = VaultFees({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
 
     vm.prank(alice);
-    vault.proposeFees(newFeeStructure);
+    vault.proposeFees(newVaultFees);
   }
 
   function testFail__proposeFees_fees_too_high() public {
-    FeeStructure memory newFeeStructure = FeeStructure({ deposit: 1e18, withdrawal: 1, management: 1, performance: 1 });
+    VaultFees memory newVaultFees = VaultFees({ deposit: 1e18, withdrawal: 1, management: 1, performance: 1 });
 
-    vault.proposeFees(newFeeStructure);
+    vault.proposeFees(newVaultFees);
   }
 
   // Change Fees
   function test__changeFees() public {
-    FeeStructure memory newFeeStructure = FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
-    vault.proposeFees(newFeeStructure);
+    VaultFees memory newVaultFees = VaultFees({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
+    vault.proposeFees(newVaultFees);
 
     vm.warp(block.timestamp + 3 days);
 
     vm.expectEmit(false, false, false, true, address(vault));
-    emit ChangedFees(FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newFeeStructure);
+    emit ChangedFees(VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }), newVaultFees);
 
     vault.changeFees();
 
@@ -759,8 +760,8 @@ contract VaultTest is Test {
   }
 
   function testFail__changeFees_respect_rageQuit() public {
-    FeeStructure memory newFeeStructure = FeeStructure({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
-    vault.proposeFees(newFeeStructure);
+    VaultFees memory newVaultFees = VaultFees({ deposit: 1, withdrawal: 1, management: 1, performance: 1 });
+    vault.proposeFees(newVaultFees);
 
     // Didnt respect 3 days before propsal and change
     vault.changeFees();
@@ -836,8 +837,7 @@ contract VaultTest is Test {
     // Increase assets in asset Adapter to check hwm and assetCheckpoint later
     asset.mint(address(adapter), depositAmount);
     vault.takeManagementAndPerformanceFees();
-    uint256 oldHWM = vault.vaultShareHWM();
-    uint256 oldAssetCheckpoint = vault.assetsCheckpoint();
+    uint256 oldHWM = vault.highWaterMark();
 
     // Preparation to change the adapter
     vault.proposeAdapter(IERC4626(address(newAdapter)));
@@ -857,8 +857,7 @@ contract VaultTest is Test {
     assertEq(newAdapter.balanceOf(address(vault)), depositAmount * 2);
     assertEq(asset.allowance(address(vault), address(newAdapter)), type(uint256).max);
 
-    assertEq(vault.vaultShareHWM(), oldHWM);
-    assertEq(vault.assetsCheckpoint(), oldAssetCheckpoint);
+    assertEq(vault.highWaterMark(), oldHWM);
   }
 
   function testFail__changeAdapter_NonOwner() public {

@@ -83,3 +83,15 @@ interface ILendingPool {
    **/
   function getReserveData(address asset) external view returns (DataTypes.ReserveData memory);
 }
+
+// Aave protocol data provider
+interface IProtocolDataProvider {
+  function getReserveTokensAddresses(address asset)
+    external
+    view
+    returns (
+      address aTokenAddress,
+      address stableDebtTokenAddress,
+      address variableDebtTokenAddress
+    );
+}

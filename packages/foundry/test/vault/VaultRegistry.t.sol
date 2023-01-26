@@ -18,13 +18,13 @@ contract VaultRegistryTest is Test {
   address nonOwner = makeAddr("non owner");
 
   address staking = makeAddr("staking");
-  address submitter = makeAddr("submitter");
+  address creator = makeAddr("creator");
   address swapAddress = makeAddr("swap address");
 
   string constant metadataCid = "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR";
   address[8] swapTokenAddresses;
 
-  event VaultAdded(address vaultAddress, string metadataCID);
+  event VaultAdded(address vault, string metadataCID);
 
   function setUp() public {
     for (uint256 i; i < 8; ++i) {
@@ -38,10 +38,10 @@ contract VaultRegistryTest is Test {
                           REGISTER_VAULT
     //////////////////////////////////////////////////////////////*/
   function test__registerVault() public {
-    VaultMetadata memory vaultParams = VaultMetadata({
-      vaultAddress: address(vault),
+    VaultMetadata memory VaultInitParams = VaultMetadata({
+      vault: address(vault),
       staking: staking,
-      submitter: submitter,
+      creator: creator,
       metadataCID: metadataCid,
       swapTokenAddresses: swapTokenAddresses,
       swapAddress: swapAddress,
@@ -51,13 +51,13 @@ contract VaultRegistryTest is Test {
     vm.expectEmit(false, false, false, true);
     emit VaultAdded(address(vault), metadataCid);
 
-    registry.registerVault(vaultParams);
+    registry.registerVault(VaultInitParams);
 
     VaultMetadata memory savedVault = registry.getVault(address(vault));
 
-    assertEq(savedVault.vaultAddress, address(vault));
+    assertEq(savedVault.vault, address(vault));
     assertEq(savedVault.staking, staking);
-    assertEq(savedVault.submitter, submitter);
+    assertEq(savedVault.creator, creator);
     assertEq(savedVault.metadataCID, metadataCid);
     assertEq(savedVault.swapAddress, swapAddress);
     assertEq(savedVault.exchange, 1);
@@ -68,10 +68,10 @@ contract VaultRegistryTest is Test {
   }
 
   function test__registerVault_nonOwner() public {
-    VaultMetadata memory vaultParams = VaultMetadata({
-      vaultAddress: address(vault),
+    VaultMetadata memory VaultInitParams = VaultMetadata({
+      vault: address(vault),
       staking: staking,
-      submitter: submitter,
+      creator: creator,
       metadataCID: metadataCid,
       swapTokenAddresses: swapTokenAddresses,
       swapAddress: swapAddress,
@@ -80,23 +80,23 @@ contract VaultRegistryTest is Test {
 
     vm.prank(nonOwner);
     vm.expectRevert("Only the contract owner may perform this action");
-    registry.registerVault(vaultParams);
+    registry.registerVault(VaultInitParams);
   }
 
   function test__registerVault_vault_already_registered() public {
-    VaultMetadata memory vaultParams = VaultMetadata({
-      vaultAddress: address(vault),
+    VaultMetadata memory VaultInitParams = VaultMetadata({
+      vault: address(vault),
       staking: staking,
-      submitter: submitter,
+      creator: creator,
       metadataCID: metadataCid,
       swapTokenAddresses: swapTokenAddresses,
       swapAddress: swapAddress,
       exchange: 1
     });
 
-    registry.registerVault(vaultParams);
+    registry.registerVault(VaultInitParams);
 
     vm.expectRevert(VaultRegistry.VaultAlreadyRegistered.selector);
-    registry.registerVault(vaultParams);
+    registry.registerVault(VaultInitParams);
   }
 }

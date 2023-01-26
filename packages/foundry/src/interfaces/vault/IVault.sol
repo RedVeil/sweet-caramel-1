@@ -5,19 +5,24 @@ pragma solidity ^0.8.15;
 import { IERC4626, IERC20 } from "./IERC4626.sol";
 
 // Fees are set in 1e18 for 100% (1 BPS = 1e14)
-// Raise Fees in BPS by 1e14 to get an accurate value
-struct FeeStructure {
-  uint256 deposit;
-  uint256 withdrawal;
-  uint256 management;
-  uint256 performance;
+struct VaultFees {
+  uint64 deposit;
+  uint64 withdrawal;
+  uint64 management;
+  uint64 performance;
 }
 
-struct VaultParams {
+/// @notice Init data for a Vault
+struct VaultInitParams {
+  /// @Notice Address of the deposit asset
   IERC20 asset;
+  /// @Notice Address of the adapter used by the vault
   IERC4626 adapter;
-  FeeStructure feeStructure;
+  /// @Notice Fees used by the vault
+  VaultFees fees;
+  /// @Notice Address of the recipient of the fees
   address feeRecipient;
+  /// @Notice Owner of the vault (Usually the submitter)
   address owner;
 }
 
@@ -28,7 +33,7 @@ interface IVault is IERC4626 {
 
   function accruedPerformanceFee() external view returns (uint256);
 
-  function vaultShareHWM() external view returns (uint256);
+  function highWaterMark() external view returns (uint256);
 
   function assetsCheckpoint() external view returns (uint256);
 
@@ -62,13 +67,13 @@ interface IVault is IERC4626 {
 
   // MANAGEMENT FUNCTIONS - FEES
 
-  function fees() external view returns (FeeStructure memory);
+  function fees() external view returns (VaultFees memory);
 
-  function proposedFees() external view returns (FeeStructure memory);
+  function proposedFees() external view returns (VaultFees memory);
 
   function proposedFeeTime() external view returns (uint256);
 
-  function proposeFees(FeeStructure memory) external;
+  function proposeFees(VaultFees memory) external;
 
   function changeFees() external;
 
@@ -85,7 +90,7 @@ interface IVault is IERC4626 {
   function initialize(
     IERC20 asset_,
     IERC4626 adapter_,
-    FeeStructure memory feeStructure_,
+    VaultFees memory fees_,
     address feeRecipient_,
     address owner
   ) external;

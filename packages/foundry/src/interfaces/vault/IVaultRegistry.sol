@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.15
-
 pragma solidity ^0.8.15;
 
 import { IOwned } from "../IOwned.sol";
 
 struct VaultMetadata {
-  address vaultAddress; // address of vault
-  address staking; // address of vault staking contract
-  address submitter; // address of vault submitter
-  string metadataCID; // ipfs CID of vault metadata
-  address[8] swapTokenAddresses; // underlying assets to deposit and recieve LP token
-  address swapAddress; // ex: stableSwapAddress for Curve
-  uint256 exchange; // number specifying exchange (1 = curve)
+  /// @notice Vault address
+  address vault;
+  /// @notice Staking contract for the vault
+  address staking;
+  /// @notice Owner and Vault creator
+  address creator;
+  /// @notice IPFS CID of vault metadata
+  string metadataCID;
+  /// @notice OPTIONAL - If the asset is an Lp Token these are its underlying assets
+  address[8] swapTokenAddresses;
+  /// @notice OPTIONAL - If the asset is an Lp Token its the pool address
+  address swapAddress;
+  /// @notice OPTIONAL - If the asset is an Lp Token this is the identifier of the exchange (1 = curve)
+  uint256 exchange;
 }
 
 interface IVaultRegistry is IOwned {
-  function vaults(address vault) external view returns (VaultMetadata memory);
+  function getVault(address vault) external view returns (VaultMetadata memory);
 
   function getSubmitter(address vault) external view returns (address);
 

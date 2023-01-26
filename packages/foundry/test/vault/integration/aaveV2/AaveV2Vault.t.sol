@@ -4,7 +4,7 @@
 pragma solidity ^0.8.15;
 
 import { AbstractVaultIntegrationTest } from "../abstract/AbstractVaultIntegrationTest.sol";
-import { AaveV2Adapter, SafeERC20, IERC20, IERC20Metadata, Math, ILendingPool, IAaveMining, IAToken, IStrategy, IAdapter } from "../../../../src/vault/adapter/aave/aaveV2/AaveV2Adapter.sol";
+import { AaveV2Adapter, SafeERC20, IERC20, IERC20Metadata, Math, ILendingPool, IAaveMining, IAToken, IStrategy, IAdapter, IProtocolDataProvider } from "../../../../src/vault/adapter/aave/aaveV2/AaveV2Adapter.sol";
 import { AaveV2TestConfigStorage, AaveV2TestConfig, ITestConfigStorage } from "./AaveV2TestConfigStorage.sol";
 import { MockStrategy } from "../../../utils/mocks/MockStrategy.sol";
 
@@ -32,15 +32,15 @@ contract AaveV2VaultTest is AbstractVaultIntegrationTest {
   function _setUpTest(bytes memory testConfig) internal {
     createAdapter();
 
-    address _aToken = abi.decode(testConfig, (address));
+    (address _asset, address aaveDataProvider) = abi.decode(testConfig, (address, address));
+    (address _aToken, , ) = IProtocolDataProvider(aaveDataProvider).getReserveTokensAddresses(_asset);
 
     aToken = IAToken(_aToken);
     lendingPool = ILendingPool(aToken.POOL());
     aaveMining = IAaveMining(aToken.getIncentivesController());
-    address _asset = aToken.UNDERLYING_ASSET_ADDRESS();
     strategy = IStrategy(address(new MockStrategy()));
 
-    adapter.initialize(abi.encode(IERC20(_asset), address(this), strategy, 0, sigs, ""), address(0), testConfig);
+    adapter.initialize(abi.encode(IERC20(_asset), address(this), strategy, 0, sigs, ""), aaveDataProvider, "");
 
     setUpBaseTest(IERC20(_asset), adapter, "AaveV2", 1);
 

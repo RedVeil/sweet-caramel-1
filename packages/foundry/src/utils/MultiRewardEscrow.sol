@@ -8,6 +8,7 @@ import { IERC20Upgradeable as IERC20 } from "openzeppelin-contracts-upgradeable/
 import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 import { Owned } from "./Owned.sol";
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
+import { Fee, Escrow } from "../interfaces/IMultiRewardEscrow.sol";
 
 /**
  * @title   MultiRewardEscrow
@@ -58,23 +59,6 @@ contract MultiRewardEscrow is Owned {
   /*//////////////////////////////////////////////////////////////
                             LOCK LOGIC
     //////////////////////////////////////////////////////////////*/
-
-  struct Escrow {
-    /// @notice The escrowed token
-    IERC20 token;
-    /// @notice Timestamp of the start of the unlock
-    uint32 start;
-    /// @notice The timestamp the unlock ends at
-    uint32 end;
-    /// @notice The timestamp the index was last updated at
-    uint32 lastUpdateTime;
-    /// @notice Initial balance of the escrow
-    uint256 initialBalance;
-    /// @notice Current balance of the escrow
-    uint256 balance;
-    /// @notice Owner of the escrow
-    address account;
-  }
 
   // EscrowId => Escrow
   mapping(bytes32 => Escrow) public escrows;
@@ -203,11 +187,6 @@ contract MultiRewardEscrow is Owned {
   /*//////////////////////////////////////////////////////////////
                             FEE LOGIC
     //////////////////////////////////////////////////////////////*/
-
-  struct Fee {
-    uint256 accrued;
-    uint256 feePerc;
-  }
 
   address public feeRecipient;
 

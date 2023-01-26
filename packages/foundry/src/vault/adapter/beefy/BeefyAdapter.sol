@@ -5,7 +5,8 @@ pragma solidity ^0.8.15;
 
 import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../abstracts/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../abstracts/WithRewards.sol";
-import { IBeefyVault, IBeefyBooster, IBeefyBalanceCheck } from "./IBeefy.sol";
+import { IBeefyVault, IBeefyBooster, IBeefyBalanceCheck, IBeefyStrat } from "./IBeefy.sol";
+import { IPermissionRegistry } from "../../../interfaces/vault/IPermissionRegistry.sol";
 
 /**
  * @title   Beefy Adapter
@@ -27,36 +28,30 @@ contract BeefyAdapter is AdapterBase, WithRewards {
   IBeefyBooster public beefyBooster;
   IBeefyBalanceCheck public beefyBalanceCheck;
 
-  uint256 public beefyWithdrawalFee;
   uint256 public constant BPS_DENOMINATOR = 10_000;
 
-  error InvalidBeefyWithdrawalFee(uint256 fee);
+  error NotEndorsed(address beefyVault);
   error InvalidBeefyVault(address beefyVault);
   error InvalidBeefyBooster(address beefyBooster);
 
   /**
    * @notice Initialize a new Beefy Adapter.
    * @param adapterInitData Encoded data for the base adapter initialization.
+   * @param registry Endorsement Registry to check if the beefy adapter is endorsed.
    * @param beefyInitData Encoded data for the beefy adapter initialization.
    * @dev `_beefyVault` - The underlying beefy vault.
    * @dev `_beefyBooster` - An optional beefy booster.
-   * @dev `_beefyWithdrawalFee` - A withdrawal fee paid to beefy in 10_000 (BPS).
    * @dev This function is called by the factory contract when deploying a new vault.
-   * @dev The `_beefyWithdrawalFee` is used to accurately calculate the amount of tokens to withdraw from the beefy vault.
    */
   function initialize(
     bytes memory adapterInitData,
-    address,
+    address registry,
     bytes memory beefyInitData
   ) public {
-    (address _beefyVault, address _beefyBooster, uint256 _beefyWithdrawalFee) = abi.decode(
-      beefyInitData,
-      (address, address, uint256)
-    );
+    (address _beefyVault, address _beefyBooster) = abi.decode(beefyInitData, (address, address));
     __AdapterBase_init(adapterInitData);
 
-    // Defined in the FeeManager of Beefy. Strats can never have more than 50 BPS withdrawal fees
-    if (_beefyWithdrawalFee > 50) revert InvalidBeefyWithdrawalFee(_beefyWithdrawalFee);
+    if (!IPermissionRegistry(registry).endorsed(_beefyVault)) revert NotEndorsed(_beefyVault);
     if (IBeefyVault(_beefyVault).want() != asset()) revert InvalidBeefyVault(_beefyVault);
     if (_beefyBooster != address(0) && IBeefyBooster(_beefyBooster).stakedToken() != _beefyVault)
       revert InvalidBeefyBooster(_beefyBooster);
@@ -66,7 +61,6 @@ contract BeefyAdapter is AdapterBase, WithRewards {
 
     beefyVault = IBeefyVault(_beefyVault);
     beefyBooster = IBeefyBooster(_beefyBooster);
-    beefyWithdrawalFee = _beefyWithdrawalFee;
 
     beefyBalanceCheck = IBeefyBalanceCheck(_beefyBooster == address(0) ? _beefyVault : _beefyBooster);
 
@@ -118,19 +112,22 @@ contract BeefyAdapter is AdapterBase, WithRewards {
 
   /// @notice `previewWithdraw` that takes beefy withdrawal fees into account
   function previewWithdraw(uint256 assets) public view override returns (uint256) {
-    uint256 beefyFee = beefyWithdrawalFee == 0
-      ? 0
-      : assets.mulDiv(beefyWithdrawalFee, BPS_DENOMINATOR, Math.Rounding.Up);
+    IBeefyStrat strat = IBeefyStrat(beefyVault.strategy());
+    uint256 beefyFee = strat.withdrawalFee();
+    if (beefyFee > 0) assets = assets.mulDiv(BPS_DENOMINATOR, BPS_DENOMINATOR - beefyFee, Math.Rounding.Up);
 
-    return _convertToShares(assets - beefyFee, Math.Rounding.Up);
+    return _convertToShares(assets, Math.Rounding.Up);
   }
 
   /// @notice `previewRedeem` that takes beefy withdrawal fees into account
   function previewRedeem(uint256 shares) public view override returns (uint256) {
     uint256 assets = _convertToAssets(shares, Math.Rounding.Down);
 
-    return
-      beefyWithdrawalFee == 0 ? assets : assets - assets.mulDiv(beefyWithdrawalFee, BPS_DENOMINATOR, Math.Rounding.Up);
+    IBeefyStrat strat = IBeefyStrat(beefyVault.strategy());
+    uint256 beefyFee = strat.withdrawalFee();
+    if (beefyFee > 0) assets -= assets.mulDiv(beefyFee, BPS_DENOMINATOR, Math.Rounding.Up);
+
+    return assets;
   }
 
   /*//////////////////////////////////////////////////////////////

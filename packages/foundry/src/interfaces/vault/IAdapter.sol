@@ -19,19 +19,17 @@ interface IAdapter is IERC4626, IOwned, IPermit, IPausable {
 
   function supportsInterface(bytes4 interfaceId) external view returns (bool);
 
-  function setManagementFee(uint256 fee) external;
+  function setPerformanceFee(uint256 fee) external;
 
-  function managementFee() external view returns (uint256);
+  function performanceFee() external view returns (uint256);
+
+  function highWaterMark() external view returns (uint256);
 
   function harvest() external;
 
-  function getApy() external view returns (uint256);
-
-  function assetsCheckpoint() external view returns (uint256);
-
-  function feesUpdatedAt() external view returns (uint256);
-
   function harvestCooldown() external view returns (uint256);
+
+  function setHarvestCooldown(uint256 harvestCooldown) external;
 
   function initialize(
     bytes memory adapterBaseData,

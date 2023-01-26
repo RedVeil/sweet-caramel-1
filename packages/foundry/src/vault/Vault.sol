@@ -8,7 +8,7 @@ import { ReentrancyGuardUpgradeable } from "openzeppelin-contracts-upgradeable/s
 import { PausableUpgradeable } from "openzeppelin-contracts-upgradeable/security/PausableUpgradeable.sol";
 import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
 import { IERC20Metadata } from "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import { FeeStructure } from "../interfaces/vault/IVault.sol";
+import { VaultFees } from "../interfaces/vault/IVault.sol";
 import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { OwnedUpgradeable } from "../utils/OwnedUpgradeable.sol";
 import { ERC20Upgradeable } from "openzeppelin-contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -28,7 +28,6 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   using Math for uint256;
 
   uint256 constant SECONDS_PER_YEAR = 365.25 days;
-  uint256 internal ONE;
 
   IERC20 public asset;
   uint8 internal _decimals;
@@ -53,7 +52,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   function initialize(
     IERC20 asset_,
     IERC4626 adapter_,
-    FeeStructure memory fees_,
+    VaultFees calldata fees_,
     address feeRecipient_,
     address owner
   ) external initializer {
@@ -76,13 +75,8 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
     INITIAL_CHAIN_ID = block.chainid;
     INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
 
-    ONE = 10**decimals();
-    vaultShareHWM = ONE;
-
     feesUpdatedAt = block.timestamp;
     fees = fees_;
-
-    quitPeriod = 3 days;
 
     if (feeRecipient_ == address(0)) revert InvalidFeeRecipient();
     feeRecipient = feeRecipient_;
@@ -130,7 +124,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   {
     if (receiver == address(0)) revert InvalidReceiver();
 
-    uint256 feeShares = convertToShares(assets.mulDiv(fees.deposit, 1e18, Math.Rounding.Down));
+    uint256 feeShares = convertToShares(assets.mulDiv(uint256(fees.deposit), 1e18, Math.Rounding.Down));
 
     shares = convertToShares(assets) - feeShares;
 
@@ -164,7 +158,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   {
     if (receiver == address(0)) revert InvalidReceiver();
 
-    uint256 depositFee = fees.deposit;
+    uint256 depositFee = uint256(fees.deposit);
 
     uint256 feeShares = shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Down);
 
@@ -201,7 +195,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
 
     shares = convertToShares(assets);
 
-    uint256 withdrawalFee = fees.withdrawal;
+    uint256 withdrawalFee = uint256(fees.withdrawal);
 
     uint256 feeShares = shares.mulDiv(withdrawalFee, 1e18 - withdrawalFee, Math.Rounding.Down);
 
@@ -238,7 +232,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
 
     if (msg.sender != owner) _approve(owner, msg.sender, allowance(owner, msg.sender) - shares);
 
-    uint256 feeShares = shares.mulDiv(fees.withdrawal, 1e18, Math.Rounding.Down);
+    uint256 feeShares = shares.mulDiv(uint256(fees.withdrawal), 1e18, Math.Rounding.Down);
 
     assets = convertToAssets(shares - feeShares);
 
@@ -289,7 +283,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewDeposit(uint256 assets) public view returns (uint256 shares) {
-    shares = adapter.previewDeposit(assets - assets.mulDiv(fees.deposit, 1e18, Math.Rounding.Down));
+    shares = adapter.previewDeposit(assets - assets.mulDiv(uint256(fees.deposit), 1e18, Math.Rounding.Down));
   }
 
   /**
@@ -299,7 +293,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @dev This method accounts for issuance of accrued fee shares.
    */
   function previewMint(uint256 shares) public view returns (uint256 assets) {
-    uint256 depositFee = fees.deposit;
+    uint256 depositFee = uint256(fees.deposit);
 
     shares += shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Up);
 
@@ -313,7 +307,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @dev This method accounts for both issuance of fee shares and withdrawal fee.
    */
   function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
-    uint256 withdrawalFee = fees.withdrawal;
+    uint256 withdrawalFee = uint256(fees.withdrawal);
 
     assets += assets.mulDiv(withdrawalFee, 1e18 - withdrawalFee, Math.Rounding.Up);
 
@@ -329,7 +323,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   function previewRedeem(uint256 shares) public view returns (uint256 assets) {
     assets = adapter.previewRedeem(shares);
 
-    assets -= assets.mulDiv(fees.withdrawal, 1e18, Math.Rounding.Down);
+    assets -= assets.mulDiv(uint256(fees.withdrawal), 1e18, Math.Rounding.Down);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -368,32 +362,39 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    *  calculating a definite integral using the trapezoid rule.
    */
   function accruedManagementFee() public view returns (uint256) {
-    uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
-
-    return (fees.management.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / 1e18;
+    uint256 managementFee = fees.management;
+    return
+      managementFee > 0
+        ? managementFee.mulDiv(
+          totalAssets() * (block.timestamp - feesUpdatedAt),
+          SECONDS_PER_YEAR,
+          Math.Rounding.Down
+        ) / 1e18
+        : 0;
   }
 
   /**
    * @notice Performance fee that has accrued since last fee harvest.
    * @return Accrued performance fee in underlying `asset` token.
-   * @dev Performance fee is based on a vault share high water mark value. If vault share value has increased above the
+   * @dev Performance fee is based on a high water mark value. If vault share value has increased above the
    *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
   function accruedPerformanceFee() public view returns (uint256) {
-    uint256 shareValue = convertToAssets(ONE);
+    uint256 highWaterMark_ = highWaterMark;
+    uint256 shareValue = convertToAssets(1e18);
+    uint256 performanceFee = fees.performance;
 
-    if (shareValue > vaultShareHWM) {
-      return fees.performance.mulDiv((shareValue - vaultShareHWM) * totalSupply(), 1e18 * ONE, Math.Rounding.Down);
-    } else {
-      return 0;
-    }
+    return
+      performanceFee > 0 && shareValue > highWaterMark
+        ? performanceFee.mulDiv((shareValue - highWaterMark) * totalSupply(), 1e36, Math.Rounding.Down)
+        : 0;
   }
 
   /*//////////////////////////////////////////////////////////////
                             FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  uint256 public vaultShareHWM;
+  uint256 public highWaterMark = 1e18;
   uint256 public assetsCheckpoint;
   uint256 public feesUpdatedAt;
 
@@ -407,45 +408,38 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
     uint256 managementFee = accruedManagementFee();
     uint256 totalFee = managementFee + accruedPerformanceFee();
     uint256 currentAssets = totalAssets();
+    uint256 shareValue = convertToAssets(1e18);
 
-    uint256 shareValue = convertToAssets(ONE);
+    if (shareValue > highWaterMark) highWaterMark = shareValue;
 
-    if (shareValue > vaultShareHWM) vaultShareHWM = shareValue;
+    if (managementFee > 0) feesUpdatedAt = block.timestamp;
 
-    if (managementFee > 0 || currentAssets == 0) {
-      feesUpdatedAt = block.timestamp;
-    }
-
-    if (totalFee > 0 && currentAssets > 0) {
-      _mint(feeRecipient, convertToShares(totalFee));
-    }
+    if (totalFee > 0 && currentAssets > 0) _mint(feeRecipient, convertToShares(totalFee));
 
     _;
-    assetsCheckpoint = totalAssets();
   }
 
   modifier syncFeeCheckpoint() {
     _;
-    vaultShareHWM = convertToAssets(ONE);
-    assetsCheckpoint = totalAssets();
+    highWaterMark = convertToAssets(1e18);
   }
 
   /*//////////////////////////////////////////////////////////////
                             FEE MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  FeeStructure public fees;
+  VaultFees public fees;
 
-  FeeStructure public proposedFees;
+  VaultFees public proposedFees;
   uint256 public proposedFeeTime;
 
   address public feeRecipient;
 
-  event NewFeesProposed(FeeStructure newFees, uint256 timestamp);
-  event ChangedFees(FeeStructure oldFees, FeeStructure newFees);
+  event NewFeesProposed(VaultFees newFees, uint256 timestamp);
+  event ChangedFees(VaultFees oldFees, VaultFees newFees);
   event FeeRecipientUpdated(address oldFeeRecipient, address newFeeRecipient);
 
-  error InvalidFeeStructure();
+  error InvalidVaultFees();
   error InvalidFeeRecipient();
   error NotPassedQuitPeriod(uint256 quitPeriod);
 
@@ -454,10 +448,10 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @param newFees Fees for depositing, withdrawal, management and performance in 1e18.
    * @dev Fees can be 0 but never 1e18 (1e18 = 100%, 1e14 = 1 BPS)
    */
-  function proposeFees(FeeStructure memory newFees) external onlyOwner {
+  function proposeFees(VaultFees calldata newFees) external onlyOwner {
     if (
       newFees.deposit >= 1e18 || newFees.withdrawal >= 1e18 || newFees.management >= 1e18 || newFees.performance >= 1e18
-    ) revert InvalidFeeStructure();
+    ) revert InvalidVaultFees();
 
     proposedFees = newFees;
     proposedFeeTime = block.timestamp;
@@ -538,7 +532,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
                           RAGE QUIT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  uint256 public quitPeriod; // default is 3 days
+  uint256 public quitPeriod = 3 days;
 
   event QuitPeriodSet(uint256 quitPeriod);
 

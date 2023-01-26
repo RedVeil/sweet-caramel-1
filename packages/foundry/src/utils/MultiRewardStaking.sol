@@ -9,6 +9,7 @@ import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/util
 import { SafeCastLib } from "solmate/utils/SafeCastLib.sol";
 import { OwnedUpgradeable } from "./OwnedUpgradeable.sol";
 import { IMultiRewardEscrow } from "../interfaces/IMultiRewardEscrow.sol";
+import { RewardInfo, EscrowInfo } from "../interfaces/IMultiRewardStaking.sol";
 
 /**
  * @title   MultiRewardStaking
@@ -204,32 +205,6 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
                     REWARDS MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  /// @notice The whole reward and accrual logic is heavily based on the Fei Protocol's Flywheel contracts.
-  /// https://github.com/fei-protocol/flywheel-v2/blob/main/src/rewards/FlywheelStaticRewards.sol
-  /// https://github.com/fei-protocol/flywheel-v2/blob/main/src/FlywheelCore.sol
-  struct RewardInfo {
-    /// @notice scalar for the rewardToken
-    uint64 ONE;
-    /// @notice Rewards per second
-    uint160 rewardsPerSecond;
-    /// @notice The timestamp the rewards end at
-    /// @dev use 0 to specify no end
-    uint32 rewardsEndTimestamp;
-    /// @notice The strategy's last updated index
-    uint224 index;
-    /// @notice The timestamp the index was last updated at
-    uint32 lastUpdatedTimestamp;
-  }
-
-  struct EscrowInfo {
-    /// @notice Percentage of reward that gets escrowed in 1e18 (1e18 = 100%, 1e14 = 1 BPS)
-    uint192 escrowPercentage;
-    /// @notice Duration of the escrow in seconds
-    uint32 escrowDuration;
-    /// @notice A cliff before the escrow starts in seconds
-    uint32 offset;
-  }
-
   IERC20[] public rewardTokens;
 
   // rewardToken -> RewardInfo
@@ -377,10 +352,11 @@ contract MultiRewardStaking is ERC4626Upgradeable, OwnedUpgradeable {
     uint32 rewardsEndTimestamp,
     uint160 rewardsPerSecond,
     uint256 amount
-  ) internal view returns (uint32) {
-    if (rewardsEndTimestamp > block.timestamp) amount += rewardsPerSecond * (rewardsEndTimestamp - block.timestamp);
+  ) internal returns (uint32) {
+    if (rewardsEndTimestamp > block.timestamp)
+      amount += uint256(rewardsPerSecond) * (rewardsEndTimestamp - block.timestamp);
 
-    return (block.timestamp + (amount / rewardsPerSecond)).safeCastTo32();
+    return (block.timestamp + (amount / uint256(rewardsPerSecond))).safeCastTo32();
   }
 
   function getAllRewardsTokens() external view returns (IERC20[] memory) {

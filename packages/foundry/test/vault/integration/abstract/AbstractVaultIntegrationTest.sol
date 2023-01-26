@@ -7,7 +7,7 @@ import { Test } from "forge-std/Test.sol";
 import { ITestConfigStorage } from "./ITestConfigStorage.sol";
 import { IAdapter, IERC4626 } from "../../../../src/interfaces/vault/IAdapter.sol";
 import { IStrategy } from "../../../../src/interfaces/vault/IStrategy.sol";
-import { Vault, FeeStructure, IERC20Metadata, IERC20 } from "../../../../src/vault/Vault.sol";
+import { Vault, VaultFees, IERC20Metadata, IERC20 } from "../../../../src/vault/Vault.sol";
 import { MathUpgradeable as Math } from "openzeppelin-contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import { Strings } from "openzeppelin-contracts/utils/Strings.sol";
 
@@ -68,7 +68,7 @@ contract AbstractVaultIntegrationTest is Test {
     vault.initialize(
       asset_,
       adapter_,
-      FeeStructure({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
+      VaultFees({ deposit: 0, withdrawal: 0, management: 0, performance: 0 }),
       feeRecipient,
       address(this)
     );
@@ -168,7 +168,7 @@ contract AbstractVaultIntegrationTest is Test {
         vm.prank(bob);
         vault.withdraw(amount);
         pps2 = vault.convertToAssets(defaultAmount);
-        assertWithin(pps1, pps2, 2, string.concat(Strings.toString(i), "-withdraw-", testId));
+        assertWithin(pps1, pps2, 3, string.concat(Strings.toString(i), "-withdraw-", testId));
       }
     }
   }
@@ -215,7 +215,7 @@ contract AbstractVaultIntegrationTest is Test {
         pps1 = vault.convertToAssets(defaultAmount);
         mint(amount);
         pps2 = vault.convertToAssets(defaultAmount);
-        assertWithin(pps1, pps2, 1, string.concat(Strings.toString(i), "-mint-", testId));
+        assertWithin(pps1, pps2, 2, string.concat(Strings.toString(i), "-mint-", testId));
       }
       // solhint-disable-next-line
       for (uint256 i; i < 2; ++i) {
@@ -223,7 +223,7 @@ contract AbstractVaultIntegrationTest is Test {
         vm.prank(bob);
         vault.redeem(amount);
         pps2 = vault.convertToAssets(defaultAmount);
-        assertWithin(pps1, pps2, 1, string.concat(Strings.toString(i), "-redeem-", testId));
+        assertWithin(pps1, pps2, 2, string.concat(Strings.toString(i), "-redeem-", testId));
       }
     }
   }

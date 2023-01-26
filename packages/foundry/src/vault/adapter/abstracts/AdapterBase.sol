@@ -68,7 +68,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
 
     if (_strategy != address(0)) _verifyAndSetupStrategy(_requiredSigs);
 
-    feesUpdatedAt = block.timestamp;
+    highWaterMark = 1e18;
+    lastHarvest = block.timestamp;
   }
 
   function decimals() public view override(IERC20Metadata, ERC20) returns (uint8) {
@@ -78,6 +79,36 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /*//////////////////////////////////////////////////////////////
                         DEPOSIT/WITHDRAWAL LOGIC
     //////////////////////////////////////////////////////////////*/
+
+  error MaxError(uint256 amount);
+
+  /**
+   * @notice Deposits assets into the underlying protocol and mints vault shares to `receiver`.
+   * @param assets Amount of assets to deposit.
+   * @param receiver Receiver of the shares.
+   */
+  function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
+    if (assets > maxDeposit(receiver)) revert MaxError(assets);
+
+    uint256 shares = _previewDeposit(assets);
+    _deposit(_msgSender(), receiver, assets, shares);
+
+    return shares;
+  }
+
+  /**
+   * @notice Mints vault shares to `receiver` and deposits assets into the underlying protocol.
+   * @param shares Amount of shares to mint.
+   * @param receiver Receiver of the shares.
+   */
+  function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
+    if (shares > maxMint(receiver)) revert MaxError(shares);
+
+    uint256 assets = _previewMint(shares);
+    _deposit(_msgSender(), receiver, assets, shares);
+
+    return assets;
+  }
 
   /**
    * @notice Deposit `assets` into the underlying protocol and mints vault shares to `receiver`.
@@ -98,6 +129,44 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     harvest();
 
     emit Deposit(caller, receiver, assets, shares);
+  }
+
+  /**
+   * @notice Withdraws `assets` from the underlying protocol and burns vault shares from `owner`.
+   * @param assets Amount of assets to withdraw.
+   * @param receiver Receiver of the assets.
+   * @param owner Owner of the shares.
+   */
+  function withdraw(
+    uint256 assets,
+    address receiver,
+    address owner
+  ) public virtual override returns (uint256) {
+    if (assets > maxWithdraw(owner)) revert MaxError(assets);
+
+    uint256 shares = _previewWithdraw(assets);
+    _withdraw(_msgSender(), receiver, owner, assets, shares);
+
+    return shares;
+  }
+
+  /**
+   * @notice Burns vault shares from `owner` and withdraws `assets` from the underlying protocol.
+   * @param shares Amount of shares to burn.
+   * @param receiver Receiver of the assets.
+   * @param owner Owner of the shares.
+   */
+  function redeem(
+    uint256 shares,
+    address receiver,
+    address owner
+  ) public virtual override returns (uint256) {
+    if (shares > maxRedeem(owner)) revert MaxError(shares);
+
+    uint256 assets = _previewRedeem(shares);
+    _withdraw(_msgSender(), receiver, owner, assets, shares);
+
+    return assets;
   }
 
   /**
@@ -139,24 +208,28 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   function totalAssets() public view virtual override returns (uint256) {}
 
   /**
-   * @notice Apy of real yield provided by protocols such as Aave's aTokens.
-   * @dev This function is only necessary for protocols that provide real interest for underlying.
-   */
-  function getApy() public view virtual returns (uint256) {}
-
-  /**
    * @notice Convert either `assets` or `shares` into underlying shares
    * @dev This is an optional function for underlying protocols that require deposit/withdrawal amounts in their shares.
    */
   function convertToUnderlyingShares(uint256 assets, uint256 shares) public view virtual returns (uint256) {}
+
+  /// @notice See _previewDeposit natspec
+  function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+    return _previewDeposit(assets);
+  }
 
   /**
    * @notice Simulate the effects of a deposit at the current block, given current on-chain conditions.
    * @dev Return 0 if paused since no further deposits are allowed.
    * @dev Override this function if the underlying protocol has a unique deposit logic and/or deposit fees.
    */
-  function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+  function _previewDeposit(uint256 assets) internal view virtual returns (uint256) {
     return paused() ? 0 : _convertToShares(assets, Math.Rounding.Down);
+  }
+
+  /// @notice See _previewMint natspec
+  function previewMint(uint256 shares) public view virtual override returns (uint256) {
+    return _previewMint(shares);
   }
 
   /**
@@ -164,8 +237,34 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
    * @dev Return 0 if paused since no further deposits are allowed.
    * @dev Override this function if the underlying protocol has a unique deposit logic and/or deposit fees.
    */
-  function previewMint(uint256 shares) public view virtual override returns (uint256) {
+  function _previewMint(uint256 shares) internal view virtual returns (uint256) {
     return paused() ? 0 : _convertToAssets(shares, Math.Rounding.Up);
+  }
+
+  /// @notice See _previewWithdraw natspec
+  function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+    return _previewWithdraw(assets);
+  }
+
+  /**
+   * @notice Simulate the effects of a withdraw at the current block, given current on-chain conditions.
+   * @dev Override this function if the underlying protocol has a unique withdrawal logic and/or withdraw fees.
+   */
+  function _previewWithdraw(uint256 assets) internal view virtual returns (uint256) {
+    return _convertToShares(assets, Math.Rounding.Up);
+  }
+
+  /// @notice See _previewRedeem natspec
+  function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+    return _previewRedeem(shares);
+  }
+
+  /**
+   * @notice Simulate the effects of a redeem at the current block, given current on-chain conditions.
+   * @dev Override this function if the underlying protocol has a unique redeem logic and/or redeem fees.
+   */
+  function _previewRedeem(uint256 shares) internal view virtual returns (uint256) {
+    return _convertToAssets(shares, Math.Rounding.Down);
   }
 
   /**
@@ -215,7 +314,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
 
   IStrategy public strategy;
   bytes public strategyConfig;
-  uint256 public harvestCooldown;
+  uint256 public lastHarvest;
 
   event Harvested();
 
@@ -225,7 +324,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
    * @dev Delegatecall is used to in case any logic requires the adapters address as a msg.sender. (e.g. Synthetix staking)
    */
   function harvest() public takeFees {
-    if (address(strategy) != address(0) && ((feesUpdatedAt + harvestCooldown) < block.timestamp)) {
+    if (address(strategy) != address(0) && ((lastHarvest + harvestCooldown) < block.timestamp)) {
       // solhint-disable
       address(strategy).delegatecall(abi.encodeWithSignature("harvest()"));
     }
@@ -261,61 +360,84 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   }
 
   /*//////////////////////////////////////////////////////////////
+                      HARVEST COOLDOWN LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  uint256 public harvestCooldown;
+
+  event HarvestCooldownChanged(uint256 oldCooldown, uint256 newCooldown);
+
+  error InvalidHarvestCooldown(uint256 cooldown);
+
+  /**
+   * @notice Set a new harvestCooldown for this adapter. Caller must be owner.
+   * @param newCooldown Time in seconds that must pass before a harvest can be called again.
+   * @dev Cant be longer than 1 day.
+   */
+  function setHarvestCooldown(uint256 newCooldown) external onlyOwner {
+    // Dont wait more than X seconds
+    if (newCooldown >= 1 days) revert InvalidHarvestCooldown(newCooldown);
+
+    emit HarvestCooldownChanged(harvestCooldown, newCooldown);
+
+    harvestCooldown = newCooldown;
+  }
+
+  /*//////////////////////////////////////////////////////////////
                       FEE LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  uint256 public managementFee = 5e16; // 0.5%
-  uint256 internal constant SECONDS_PER_YEAR = 365.25 days;
+  uint256 public performanceFee;
+  uint256 internal highWaterMark;
 
   // TODO use deterministic fee recipient proxy
   address FEE_RECIPIENT = address(0x4444);
 
-  uint256 public assetsCheckpoint;
-  uint256 public feesUpdatedAt;
+  event PerformanceFeeChanged(uint256 oldFee, uint256 newFee);
 
-  event ManagementFeeChanged(uint256 oldFee, uint256 newFee);
-
-  error InvalidManagementFee(uint256 fee);
+  error InvalidPerformanceFee(uint256 fee);
 
   /**
-   * @notice Management fee that has accrued since last fee harvest.
-   * @return Accrued management fee in underlying `asset` token.
-   * @dev Management fee is annualized per minute, based on 525,600 minutes per year. Total assets are calculated using
-   *  the average of their current value and the value at the previous fee harvest checkpoint. This method is similar to
-   *  calculating a definite integral using the trapezoid rule.
+   * @notice Performance fee that has accrued since last fee harvest.
+   * @return Accrued performance fee in underlying `asset` token.
+   * @dev Performance fee is based on a high water mark value. If vault share value has increased above the
+   *   HWM in a fee period, issue fee shares to the vault equal to the performance fee.
    */
-  function accruedManagementFee() public view returns (uint256) {
-    uint256 area = (totalAssets() + assetsCheckpoint) * (block.timestamp - feesUpdatedAt);
+  function accruedPerformanceFee() public view returns (uint256) {
+    uint256 highWaterMark_ = highWaterMark;
+    uint256 shareValue = convertToAssets(1e18);
+    uint256 performanceFee_ = performanceFee;
 
-    return (managementFee.mulDiv(area, 2, Math.Rounding.Down) / SECONDS_PER_YEAR) / 1e18;
+    return
+      performanceFee_ > 0 && shareValue > highWaterMark_
+        ? performanceFee_.mulDiv((shareValue - highWaterMark_) * totalSupply(), 1e36, Math.Rounding.Down)
+        : 0;
   }
 
   /**
-   * @notice Set a new managementFee for this adapter. Caller must be owner.
-   * @param newFee mangement fee in 1e18.
-   * @dev Fees can be 0 but never 1e17 (1e18 = 100%, 1e14 = 1 BPS)
+   * @notice Set a new performance fee for this adapter. Caller must be owner.
+   * @param newFee performance fee in 1e18.
+   * @dev Fees can be 0 but never more than 2e17 (1e18 = 100%, 1e14 = 1 BPS)
    */
-  function setManagementFee(uint256 newFee) public onlyOwner {
-    // Dont take more than 10% managementFee
-    if (newFee >= 1e17) revert InvalidManagementFee(newFee);
+  function setPerformanceFee(uint256 newFee) public onlyOwner {
+    // Dont take more than 20% performanceFee
+    if (newFee > 2e17) revert InvalidPerformanceFee(newFee);
 
-    emit ManagementFeeChanged(managementFee, newFee);
+    emit PerformanceFeeChanged(performanceFee, newFee);
 
-    managementFee = newFee;
+    performanceFee = newFee;
   }
 
-  /// @notice Collect management fees and update asset checkpoint.
+  /// @notice Collect performance fees and update asset checkpoint.
   modifier takeFees() {
     _;
 
-    uint256 _managementFee = accruedManagementFee();
+    uint256 fee = accruedPerformanceFee();
 
-    if (_managementFee > 0) {
-      feesUpdatedAt = block.timestamp;
-      _mint(FEE_RECIPIENT, convertToShares(_managementFee));
-    }
+    // TODO what happens if someone burns the last supply?
+    if (fee > 0) _mint(FEE_RECIPIENT, convertToShares(fee));
 
-    assetsCheckpoint = totalAssets();
+    highWaterMark = convertToAssets(1e18);
   }
 
   /*//////////////////////////////////////////////////////////////

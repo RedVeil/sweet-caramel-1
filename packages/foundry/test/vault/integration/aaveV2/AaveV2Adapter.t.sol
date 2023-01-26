@@ -5,7 +5,7 @@ pragma solidity ^0.8.15;
 
 import { Test } from "forge-std/Test.sol";
 
-import { AaveV2Adapter, SafeERC20, IERC20, IERC20Metadata, Math, ILendingPool, IAaveMining, IAToken } from "../../../../src/vault/adapter/aave/aaveV2/AaveV2Adapter.sol";
+import { AaveV2Adapter, SafeERC20, IERC20, IERC20Metadata, Math, ILendingPool, IAaveMining, IAToken, IProtocolDataProvider, DataTypes } from "../../../../src/vault/adapter/aave/aaveV2/AaveV2Adapter.sol";
 import { AaveV2TestConfigStorage, AaveV2TestConfig } from "./AaveV2TestConfigStorage.sol";
 import { AbstractAdapterTest, ITestConfigStorage, IAdapter } from "../abstract/AbstractAdapterTest.sol";
 
@@ -32,13 +32,14 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
   function _setUpTest(bytes memory testConfig) internal {
     createAdapter();
 
-    address _aToken = abi.decode(testConfig, (address));
+    (address _asset, address aaveDataProvider) = abi.decode(testConfig, (address, address));
+    (address _aToken, , ) = IProtocolDataProvider(aaveDataProvider).getReserveTokensAddresses(_asset);
 
     aToken = IAToken(_aToken);
     lendingPool = ILendingPool(aToken.POOL());
     aaveMining = IAaveMining(aToken.getIncentivesController());
 
-    setUpBaseTest(IERC20(aToken.UNDERLYING_ASSET_ADDRESS()), adapter, address(0), 10, "AaveV2 ", true);
+    setUpBaseTest(IERC20(_asset), adapter, aaveDataProvider, 10, "AaveV2 ", true);
 
     vm.label(address(aToken), "aToken");
     vm.label(address(lendingPool), "lendingPool");
@@ -46,7 +47,7 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
     vm.label(address(asset), "asset");
     vm.label(address(this), "test");
 
-    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), externalRegistry, testConfig);
+    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), externalRegistry, "");
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -101,13 +102,18 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
     assertEq(asset.allowance(address(adapter), address(lendingPool)), type(uint256).max, "allowance");
   }
 
+  function getApy() public view returns (uint256) {
+    DataTypes.ReserveData memory data = lendingPool.getReserveData(address(asset));
+    uint128 supplyRate = data.currentLiquidityRate;
+    return uint256(supplyRate / 1e9);
+  }
+
   /*//////////////////////////////////////////////////////////////
                               HARVEST
     //////////////////////////////////////////////////////////////*/
 
   function test__harvest() public override {
     _mintFor(defaultAmount, bob);
-    uint256 interest = adapter.getApy();
 
     vm.prank(bob);
     adapter.deposit(defaultAmount, bob);
@@ -115,6 +121,7 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
     // Skip a year
     vm.warp(block.timestamp + 365 days);
 
+    uint256 interest = getApy();
     uint256 expectedFee = adapter.convertToShares((defaultAmount * 5e16) / 1e18);
     uint256 callTime = block.timestamp;
 
@@ -127,8 +134,7 @@ contract AaveV2AdapterTest is AbstractAdapterTest {
 
     adapter.harvest();
 
-    assertEq(adapter.feesUpdatedAt(), callTime, "feesUpdatedAt");
-    assertApproxEqAbs(adapter.assetsCheckpoint(), defaultAmount + interest, _delta_, "assetsCheckpoint");
+    assertApproxEqAbs(adapter.highWaterMark(), defaultAmount + interest, _delta_, "highWaterMark");
     assertApproxEqAbs(adapter.totalSupply(), defaultAmount + expectedFee, _delta_, "totalSupply");
   }
 

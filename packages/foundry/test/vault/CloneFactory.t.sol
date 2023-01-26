@@ -32,6 +32,7 @@ contract CloneFactoryTest is Test {
   function test__deploy() public {
     Template memory template = Template({
       implementation: address(clonableWithoutInitDataImpl),
+      endorsed: false,
       metadataCid: metadataCid,
       requiresInitData: false,
       registry: registry,
@@ -49,6 +50,7 @@ contract CloneFactoryTest is Test {
   function test__deployWithInitData() public {
     Template memory template = Template({
       implementation: address(clonableWithInitDataImpl),
+      endorsed: false,
       metadataCid: metadataCid,
       requiresInitData: true,
       registry: registry,
@@ -68,6 +70,7 @@ contract CloneFactoryTest is Test {
   function test__deploy_nonOwner_failed() public {
     Template memory template = Template({
       implementation: address(clonableWithoutInitDataImpl),
+      endorsed: false,
       metadataCid: metadataCid,
       requiresInitData: false,
       registry: registry,
@@ -82,6 +85,7 @@ contract CloneFactoryTest is Test {
   function test__deploy_init_failed() public {
     Template memory template = Template({
       implementation: address(clonableWithoutInitDataImpl),
+      endorsed: false,
       metadataCid: metadataCid,
       requiresInitData: true,
       registry: registry,

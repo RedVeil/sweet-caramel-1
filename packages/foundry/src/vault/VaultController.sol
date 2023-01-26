@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0
 // Docgen-SOLC: 0.8.15
-
 pragma solidity ^0.8.15;
+
+import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { Owned } from "../utils/Owned.sol";
-import { IVault, VaultParams, FeeStructure } from "../interfaces/vault/IVault.sol";
+import { IVault, VaultInitParams, VaultFees } from "../interfaces/vault/IVault.sol";
 import { IMultiRewardStaking } from "../interfaces/IMultiRewardStaking.sol";
 import { IMultiRewardEscrow } from "../interfaces/IMultiRewardEscrow.sol";
-import { IDeploymentController } from "../interfaces/vault/IDeploymentController.sol";
-import { Template } from "../interfaces/vault/ITemplateRegistry.sol";
-import { IEndorsementRegistry } from "../interfaces/vault/IEndorsementRegistry.sol";
+import { IDeploymentController, ICloneRegistry } from "../interfaces/vault/IDeploymentController.sol";
+import { ITemplateRegistry, Template } from "../interfaces/vault/ITemplateRegistry.sol";
+import { IPermissionRegistry, Permission } from "../interfaces/vault/IPermissionRegistry.sol";
 import { IVaultRegistry, VaultMetadata } from "../interfaces/vault/IVaultRegistry.sol";
 import { IAdminProxy } from "../interfaces/vault/IAdminProxy.sol";
 import { IERC4626, IERC20 } from "../interfaces/vault/IERC4626.sol";
@@ -17,14 +18,20 @@ import { IAdapter } from "../interfaces/vault/IAdapter.sol";
 import { IPausable } from "../interfaces/IPausable.sol";
 import { DeploymentArgs } from "../interfaces/vault/IVaultController.sol";
 
+/**
+ * @title   VaultController
+ * @author  RedVeil
+ * @notice  Admin contract for the vault ecosystem.
+ *
+ * Deploys Vaults, Adapter, Strategies and Staking contracts.
+ * Calls admin functions on deployed contracts.
+ */
 contract VaultController is Owned {
+  using SafeERC20 for IERC20;
+
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
     //////////////////////////////////////////////////////////////*/
-
-  IDeploymentController public deploymentController;
-  IEndorsementRegistry public endorsementRegistry;
-  IVaultRegistry public vaultsRegistry;
 
   bytes32 public immutable VAULT = "Vault";
   bytes32 public immutable ADAPTER = "Adapter";
@@ -32,25 +39,34 @@ contract VaultController is Owned {
   bytes32 public immutable STAKING = "Staking";
   bytes4 internal immutable DEPLOY_SIG = bytes4(keccak256("deploy(bytes32,bytes32,bytes)"));
 
+  error UnderlyingError(bytes revertReason);
+
+  /**
+   * @notice Constructor of this contract.
+   * @param _owner Owner of the contract. Controls management functions.
+   * @param _adminProxy `AdminProxy` ownes contracts in the vault ecosystem.
+   * @param _deploymentController `DeploymentController` with auxiliary deployment contracts.
+   * @param _vaultRegistry `VaultRegistry` to safe vault metadata.
+   * @param _permissionRegistry `permissionRegistry` to add endorsements and rejections.
+   * @param _escrow `MultiRewardEscrow` To escrow rewards of staking contracts.
+   */
   constructor(
     address _owner,
     IAdminProxy _adminProxy,
     IDeploymentController _deploymentController,
-    IEndorsementRegistry _endorsementRegistry,
     IVaultRegistry _vaultRegistry,
+    IPermissionRegistry _permissionRegistry,
     IMultiRewardEscrow _escrow
-  )
-    Owned(_owner) // can change
-  //TODO which of these might we want to update?
-  {
-    adminProxy = _adminProxy; // cant change
-    deploymentController = _deploymentController; // can change -- If we want to add capabilities or switch the factory
-    endorsementRegistry = _endorsementRegistry; // cant change
-    vaultsRegistry = _vaultRegistry; // cant change
-    escrow = _escrow; // cant change
+  ) Owned(_owner) {
+    adminProxy = _adminProxy;
+    vaultRegistry = _vaultRegistry;
+    permissionRegistry = _permissionRegistry;
+    escrow = _escrow;
 
-    latestTemplateKey[STAKING] = "MultiRewardStaking";
-    latestTemplateKey[VAULT] = "V1";
+    _setDeploymentController(_deploymentController);
+
+    activeTemplateId[STAKING] = "MultiRewardStaking";
+    activeTemplateId[VAULT] = "V1";
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -59,91 +75,131 @@ contract VaultController is Owned {
 
   event VaultDeployed(address indexed vault, address indexed staking, address indexed adapter);
 
+  /**
+   * @notice Deploy a new Vault. Optionally with an Adapter and Staking. Caller must be owner.
+   * @param vaultData Vault init params.
+   * @param adapterData Encoded adapter init data.
+   * @param strategyData Encoded strategy init data.
+   * @param staking Address of staking contract to use for the vault. If 0, a new staking contract will be deployed.
+   * @param rewardsData Encoded data to add a rewards to the staking contract
+   * @param metadata Vault metadata for the `VaultRegistry` (Will be used by the frontend for additional informations)
+   * @param initialDeposit Initial deposit to the vault. If 0, no deposit will be made.
+   * @dev This function is the one stop solution to create a new vault with all necessary admin functions or auxiliery contracts.
+   */
   function deployVault(
-    DeploymentArgs memory strategyData,
+    VaultInitParams memory vaultData,
     DeploymentArgs memory adapterData,
+    DeploymentArgs memory strategyData,
+    address staking,
     bytes memory rewardsData,
-    VaultParams memory vaultData,
-    VaultMetadata memory metadata
-  ) external onlyOwner returns (address vault) {
-    IERC20 asset = vaultData.asset;
+    VaultMetadata memory metadata,
+    uint256 initialDeposit
+  ) external canCreate returns (address vault) {
     IDeploymentController _deploymentController = deploymentController;
 
-    _verifyToken(asset);
-    _verifyAdapterConfiguration(address(vaultData.adapter), adapterData.id, _deploymentController);
+    _verifyToken(address(vaultData.asset));
+    _verifyAdapterConfiguration(address(vaultData.adapter), adapterData.id);
 
-    if (adapterData.id.length > 0)
-      vaultData.adapter = IERC4626(_deployAdapter(asset, adapterData, strategyData, _deploymentController));
+    if (adapterData.id > 0)
+      vaultData.adapter = IERC4626(_deployAdapter(vaultData.asset, adapterData, strategyData, _deploymentController));
 
     vault = _deployVault(vaultData, _deploymentController);
 
-    address staking = _deployStaking(asset, _deploymentController);
+    if (staking == address(0)) staking = _deployStaking(IERC20(address(vault)), _deploymentController);
 
-    if (rewardsData.length > 0 && staking != address(0)) _handleVaultStakingRewards(staking, rewardsData);
+    _registerCreatedVault(vault, staking, metadata);
 
-    _registerVault(vault, staking, metadata);
+    if (rewardsData.length > 0) _handleVaultStakingRewards(vault, rewardsData);
 
     emit VaultDeployed(vault, staking, address(vaultData.adapter));
+
+    _handleInitialDeposit(initialDeposit, IERC20(vaultData.asset), IERC4626(vault));
   }
 
-  function _deployVault(VaultParams memory vaultData, IDeploymentController _deploymentController)
+  /// @notice Deploys a new vault contract using the `activeTemplateId`.
+  function _deployVault(VaultInitParams memory vaultData, IDeploymentController _deploymentController)
     internal
     returns (address vault)
   {
     vaultData.owner = address(adminProxy);
 
-    (, bytes memory returnData) = adminProxy.execute(
+    (bool success, bytes memory returnData) = adminProxy.execute(
       address(_deploymentController),
       abi.encodeWithSelector(
         DEPLOY_SIG,
         VAULT,
-        latestTemplateKey[VAULT],
-        abi.encodeWithSelector(IVault.initialize.selector, abi.encode(vaultData))
+        activeTemplateId[VAULT],
+        abi.encodeWithSelector(IVault.initialize.selector, vaultData)
       )
     );
+    if (!success) revert UnderlyingError(returnData);
 
     vault = abi.decode(returnData, (address));
   }
 
-  function _handleVaultStakingRewards(address staking, bytes memory rewardsData) internal {
-    address[] memory stakingContracts = new address[](1);
-    bytes[] memory rewardsDatas = new bytes[](1);
-
-    stakingContracts[0] = staking;
-    rewardsDatas[0] = rewardsData;
-
-    addStakingRewardsToken(stakingContracts, rewardsDatas);
-  }
-
-  function _registerVault(
+  /// @notice Registers newly created vault metadata.
+  function _registerCreatedVault(
     address vault,
     address staking,
     VaultMetadata memory metadata
   ) internal {
-    metadata.vaultAddress = vault;
+    metadata.vault = vault;
     metadata.staking = staking;
-    metadata.submitter = msg.sender;
+    metadata.creator = msg.sender;
 
-    adminProxy.execute(
-      address(vaultsRegistry),
-      abi.encodeWithSelector(IVaultRegistry.registerVault.selector, abi.encode(metadata))
-    );
+    _registerVault(vault, metadata);
+  }
+
+  /// @notice Prepares and calls `addStakingRewardsTokens` for the newly created staking contract.
+  function _handleVaultStakingRewards(address vault, bytes memory rewardsData) internal {
+    address[] memory vaultContracts = new address[](1);
+    bytes[] memory rewardsDatas = new bytes[](1);
+
+    vaultContracts[0] = vault;
+    rewardsDatas[0] = rewardsData;
+
+    addStakingRewardsTokens(vaultContracts, rewardsDatas);
+  }
+
+  function _handleInitialDeposit(
+    uint256 initialDeposit,
+    IERC20 asset,
+    IERC4626 target
+  ) internal {
+    if (initialDeposit > 0) {
+      asset.safeTransferFrom(msg.sender, address(this), initialDeposit);
+      asset.approve(address(target), initialDeposit);
+      target.deposit(initialDeposit, msg.sender);
+    }
   }
 
   /*//////////////////////////////////////////////////////////////
-                          ADAPTER DEPLOYMENT LOGIC
+                      ADAPTER DEPLOYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @notice Deploy a new Adapter with our without a strategy. Caller must be owner.
+   * @param asset Asset which will be used by the adapter.
+   * @param adapterData Encoded adapter init data.
+   * @param strategyData Encoded strategy init data.
+   */
   function deployAdapter(
     IERC20 asset,
     DeploymentArgs memory adapterData,
-    DeploymentArgs memory strategyData
-  ) public onlyOwner returns (address) {
-    _verifyToken(asset);
+    DeploymentArgs memory strategyData,
+    uint256 initialDeposit
+  ) external canCreate returns (address adapter) {
+    _verifyToken(address(asset));
 
-    return _deployAdapter(asset, adapterData, strategyData, deploymentController);
+    adapter = _deployAdapter(asset, adapterData, strategyData, deploymentController);
+
+    _handleInitialDeposit(initialDeposit, asset, IERC4626(adapter));
   }
 
+  /**
+   * @notice Deploys an adapter and optionally a strategy.
+   * @dev Adds the newly deployed strategy to the adapter.
+   */
   function _deployAdapter(
     IERC20 asset,
     DeploymentArgs memory adapterData,
@@ -152,168 +208,230 @@ contract VaultController is Owned {
   ) internal returns (address) {
     address strategy;
     bytes4[8] memory requiredSigs;
-    if (strategyData.id.length > 0) {
+    if (strategyData.id > 0) {
       strategy = _deployStrategy(strategyData, _deploymentController);
-      requiredSigs = _deploymentController.getTemplate(STRATEGY, strategyData.id).requiredSigs;
+      requiredSigs = templateRegistry.getTemplate(STRATEGY, strategyData.id).requiredSigs;
     }
 
     return
       __deployAdapter(
         adapterData,
-        abi.encode(asset, address(adminProxy), IStrategy(strategy), requiredSigs, strategyData.data, harvestCooldown),
+        abi.encode(asset, address(adminProxy), IStrategy(strategy), harvestCooldown, requiredSigs, strategyData.data),
         _deploymentController
       );
   }
 
+  /// @notice Deploys an adapter and sets the management fee via `AdminProxy`
   function __deployAdapter(
     DeploymentArgs memory adapterData,
     bytes memory baseAdapterData,
     IDeploymentController _deploymentController
   ) internal returns (address adapter) {
-    (, bytes memory returnDataAdapter) = adminProxy.execute(
+    (bool success, bytes memory returnData) = adminProxy.execute(
       address(_deploymentController),
-      abi.encodeWithSelector(
-        DEPLOY_SIG,
-        ADAPTER,
-        adapterData.id,
-        abi.encodeWithSelector(
-          IAdapter.initialize.selector,
-          baseAdapterData,
-          _deploymentController.getTemplate(ADAPTER, adapterData.id).registry,
-          adapterData.data
-        )
-      )
+      abi.encodeWithSelector(DEPLOY_SIG, ADAPTER, adapterData.id, _encodeAdapterData(adapterData, baseAdapterData))
     );
+    if (!success) revert UnderlyingError(returnData);
 
-    adapter = abi.decode(returnDataAdapter, (address));
+    adapter = abi.decode(returnData, (address));
 
-    adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setManagementFee.selector, managementFee));
+    adminProxy.execute(adapter, abi.encodeWithSelector(IAdapter.setPerformanceFee.selector, performanceFee));
   }
 
+  /// @notice Encodes adapter init call. Was moved into its own function to fix "stack too deep" error.
+  function _encodeAdapterData(DeploymentArgs memory adapterData, bytes memory baseAdapterData)
+    internal
+    returns (bytes memory)
+  {
+    return
+      abi.encodeWithSelector(
+        IAdapter.initialize.selector,
+        baseAdapterData,
+        templateRegistry.getTemplate(ADAPTER, adapterData.id).registry,
+        adapterData.data
+      );
+  }
+
+  /// @notice Deploys a new strategy contract.
   function _deployStrategy(DeploymentArgs memory strategyData, IDeploymentController _deploymentController)
     internal
     returns (address strategy)
   {
-    (, bytes memory returnDataStrategy) = adminProxy.execute(
+    (bool success, bytes memory returnData) = adminProxy.execute(
       address(_deploymentController),
       abi.encodeWithSelector(DEPLOY_SIG, STRATEGY, strategyData.id, "")
     );
+    if (!success) revert UnderlyingError(returnData);
 
-    strategy = abi.decode(returnDataStrategy, (address));
+    strategy = abi.decode(returnData, (address));
   }
 
   /*//////////////////////////////////////////////////////////////
-                          STAKING DEPLOYMENT LOGIC
+                    STAKING DEPLOYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function deployStaking(IERC20 asset) public onlyOwner returns (address) {
-    _verifyToken(asset);
-
+  /**
+   * @notice Deploy a new staking contract. Caller must be owner.
+   * @param asset The staking token for the new contract.
+   * @dev Deploys `MultiRewardsStaking` based on the latest templateTemplateKey.
+   */
+  function deployStaking(IERC20 asset) external canCreate returns (address) {
+    _verifyToken(address(asset));
     return _deployStaking(asset, deploymentController);
   }
 
+  /// @notice Deploys a new staking contract using the activeTemplateId.
   function _deployStaking(IERC20 asset, IDeploymentController _deploymentController)
     internal
     returns (address staking)
   {
-    (, bytes memory returnData) = adminProxy.execute(
+    (bool success, bytes memory returnData) = adminProxy.execute(
       address(_deploymentController),
       abi.encodeWithSelector(
         DEPLOY_SIG,
         STAKING,
-        latestTemplateKey[STAKING],
+        activeTemplateId[STAKING],
         abi.encodeWithSelector(IMultiRewardStaking.initialize.selector, asset, escrow, adminProxy)
       )
     );
+    if (!success) revert UnderlyingError(returnData);
 
     staking = abi.decode(returnData, (address));
   }
 
   /*//////////////////////////////////////////////////////////////
-                          VAULT MANAGEMENT LOGIC
+                    VAULT MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  error DoesntExist(address adapter);
+
   /**
-   * @notice Propose a new Adapter.
-   * @param vaults - addresses of the vaults
-   * @param newAdapter - new strategies to be proposed for the vault
-   * @dev index of _vaults array and _newStrategies array must coincide
+   * @notice Propose a new Adapter. Caller must be creator of the vaults.
+   * @param vaults Vaults to propose the new adapter for.
+   * @param newAdapter New adapters to propose.
    */
-  function proposeVaultAdapter(address[] memory vaults, IERC4626[] memory newAdapter) external {
-    _verifyEqualArrayLength(vaults.length, newAdapter.length);
-
-    IDeploymentController _deploymentController = deploymentController;
+  function proposeVaultAdapters(address[] calldata vaults, IERC4626[] calldata newAdapter) external {
     uint8 len = uint8(vaults.length);
-    for (uint8 i = 0; i < len; i++) {
-      _verifySubmitter(vaults[i]);
-      _deploymentController.cloneExists(address(newAdapter[i]));
 
-      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.proposeAdapter.selector, newAdapter));
+    _verifyEqualArrayLength(len, newAdapter.length);
+
+    ICloneRegistry _cloneRegistry = cloneRegistry;
+    for (uint8 i = 0; i < len; i++) {
+      _verifyCreator(vaults[i]);
+      if (!_cloneRegistry.cloneExists(address(newAdapter[i]))) revert DoesntExist(address(newAdapter[i]));
+
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        vaults[i],
+        abi.encodeWithSelector(IVault.proposeAdapter.selector, newAdapter[i])
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
   /**
    * @notice Change adapter of a vault to the previously proposed adapter.
-   * @param vaults - addresses of the vaults
+   * @param vaults Addresses of the vaults to change
    */
-  function changeVaultAdapter(address[] memory vaults) external {
+  function changeVaultAdapters(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.changeAdapter.selector));
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        vaults[i],
+        abi.encodeWithSelector(IVault.changeAdapter.selector)
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
   /**
-   * @notice Sets different fees per vault
-   * @param vaults - addresses of the vaults to change
-   * @param newFees - new fee structures for these vaults
+   * @notice Sets new fees per vault. Caller must be creator of the vaults.
+   * @param vaults Addresses of the vaults to change
+   * @param fees New fee structures for these vaults
    * @dev Value is in 1e18, e.g. 100% = 1e18 - 1 BPS = 1e12
-   * @dev index of _vaults array and _newFees must coincide
    */
-  function proposeVaultFees(address[] memory vaults, FeeStructure[] memory newFees) external {
-    _verifyEqualArrayLength(vaults.length, newFees.length);
-
+  function proposeVaultFees(address[] calldata vaults, VaultFees[] calldata fees) external {
     uint8 len = uint8(vaults.length);
-    for (uint8 i = 0; i < len; i++) {
-      _verifySubmitter(vaults[i]);
 
-      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.proposeFees.selector, abi.encode(newFees[i])));
+    _verifyEqualArrayLength(len, fees.length);
+
+    for (uint8 i = 0; i < len; i++) {
+      _verifyCreator(vaults[i]);
+
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        vaults[i],
+        abi.encodeWithSelector(IVault.proposeFees.selector, fees[i])
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
   /**
    * @notice Change adapter of a vault to the previously proposed adapter.
-   * @param vaults - addresses of the vaults
+   * @param vaults Addresses of the vaults
    */
-  function changeVaultFees(address[] memory vaults) external {
+  function changeVaultFees(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint8 i = 0; i < len; i++) {
-      adminProxy.execute(vaults[i], abi.encodeWithSelector(IVault.changeFees.selector));
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        vaults[i],
+        abi.encodeWithSelector(IVault.changeFees.selector)
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
   /*//////////////////////////////////////////////////////////////
-                          ENDORSEMENT LOGIC
+                          REGISTER VAULT
     //////////////////////////////////////////////////////////////*/
 
-  /**
-   * @notice switches whether a vault is endorsed or unendorsed
-   * @param targets - addresses of the contracts to change endorsement
-   */
-  function toggleEndorsement(address[] memory targets) external onlyOwner {
-    adminProxy.execute(
-      address(endorsementRegistry),
-      abi.encodeWithSelector(IEndorsementRegistry.toggleEndorsement.selector, targets)
+  IVaultRegistry public vaultRegistry;
+
+  /// @notice Call the `VaultRegistry` to register a vault via `AdminProxy`
+  function _registerVault(address vault, VaultMetadata memory metadata) internal {
+    (bool success, bytes memory returnData) = adminProxy.execute(
+      address(vaultRegistry),
+      abi.encodeWithSelector(IVaultRegistry.registerVault.selector, metadata)
     );
+    if (!success) revert UnderlyingError(returnData);
   }
 
   /*//////////////////////////////////////////////////////////////
-                          STAKING MANAGEMENT LOGIC
+                    ENDORSEMENT / REJECTION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function addStakingRewardsToken(address[] memory vaults, bytes[] memory rewardsTokenData) public {
-    _verifyEqualArrayLength(vaults.length, rewardsTokenData.length);
+  /**
+   * @notice Set permissions for an array of target. Caller must be owner.
+   * @param targets `AdminProxy`
+   * @param newPermissions An array of permissions to set for the targets.
+   * @dev See `PermissionRegistry` for more details
+   */
+  function setPermissions(address[] calldata targets, Permission[] calldata newPermissions) external onlyOwner {
+    // No need to check matching array length since its already done in the permissionRegistry
+    (bool success, bytes memory returnData) = adminProxy.execute(
+      address(permissionRegistry),
+      abi.encodeWithSelector(IPermissionRegistry.setPermissions.selector, targets, newPermissions)
+    );
+    if (!success) revert UnderlyingError(returnData);
+  }
 
+  /*//////////////////////////////////////////////////////////////
+                      STAKING MANAGEMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Adds a new rewardToken which can be earned via staking. Caller must be creator of the Vault or owner.
+   * @param vaults Vaults of which the staking contracts should be targeted
+   * @param rewardTokenData Token that can be earned by staking.
+   * @dev `rewardToken` - Token that can be earned by staking.
+   * @dev `rewardsPerSecond` - The rate in which `rewardToken` will be accrued.
+   * @dev `amount` - Initial funding amount for this reward.
+   * @dev `useEscrow Bool` - if the rewards should be escrowed on claim.
+   * @dev `escrowPercentage` - The percentage of the reward that gets escrowed in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
+   * @dev `escrowDuration` - The duration of the escrow.
+   * @dev `offset` - A cliff after claim before the escrow starts.
+   * @dev See `MultiRewardsStaking` for more details.
+   */
+  function addStakingRewardsTokens(address[] memory vaults, bytes[] memory rewardTokenData) public {
+    _verifyEqualArrayLength(vaults.length, rewardTokenData.length);
     address staking;
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
@@ -325,12 +443,20 @@ contract VaultController is Owned {
         uint224 escrowDuration,
         uint24 escrowPercentage,
         uint256 offset
-      ) = abi.decode(rewardsTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
+      ) = abi.decode(rewardTokenData[i], (address, uint160, uint256, bool, uint224, uint24, uint256));
+      _verifyToken(rewardsToken);
+      staking = _verifyCreatorOrOwner(vaults[i]).staking;
 
-      _verifyToken(IERC20(rewardsToken));
-      staking = _verifySubmitterOrOwner(vaults[i]).staking;
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        rewardsToken,
+        abi.encodeWithSelector(IERC20.approve.selector, staking, type(uint256).max)
+      );
+      if (!success) revert UnderlyingError(returnData);
 
-      adminProxy.execute(
+      IERC20(rewardsToken).approve(staking, type(uint256).max);
+      IERC20(rewardsToken).transferFrom(msg.sender, address(adminProxy), amount);
+
+      (success, returnData) = adminProxy.execute(
         staking,
         abi.encodeWithSelector(
           IMultiRewardStaking.addRewardToken.selector,
@@ -343,60 +469,131 @@ contract VaultController is Owned {
           offset
         )
       );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
-  function changeStakingRewardsSpeed(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    _verifyEqualArrayLength(vaults.length, rewardsTokenData.length);
+  /**
+   * @notice Changes rewards speed for a rewardToken. This works only for rewards that accrue over time. Caller must be creator of the Vault.
+   * @param vaults Vaults of which the staking contracts should be targeted
+   * @param rewardTokens Token that can be earned by staking.
+   * @param rewardsSpeeds The rate in which `rewardToken` will be accrued.
+   * @dev See `MultiRewardsStaking` for more details.
+   */
+  function changeStakingRewardsSpeeds(
+    address[] calldata vaults,
+    IERC20[] calldata rewardTokens,
+    uint160[] calldata rewardsSpeeds
+  ) external {
+    uint8 len = uint8(vaults.length);
+
+    _verifyEqualArrayLength(len, rewardTokens.length);
+    _verifyEqualArrayLength(len, rewardsSpeeds.length);
 
     address staking;
-    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      staking = _verifySubmitter(vaults[i]).staking;
+      staking = _verifyCreator(vaults[i]).staking;
 
-      adminProxy.execute(
+      (bool success, bytes memory returnData) = adminProxy.execute(
         staking,
-        abi.encodeWithSelector(IMultiRewardStaking.changeRewardSpeed.selector, rewardsTokenData[i])
+        abi.encodeWithSelector(IMultiRewardStaking.changeRewardSpeed.selector, rewardTokens[i], rewardsSpeeds[i])
       );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
-  function fundStakingReward(address[] memory vaults, bytes[] memory rewardsTokenData) external {
-    _verifyEqualArrayLength(vaults.length, rewardsTokenData.length);
+  /**
+   * @notice Funds rewards for a rewardToken.
+   * @param vaults Vaults of which the staking contracts should be targeted
+   * @param rewardTokens Token that can be earned by staking.
+   * @param amounts The amount of rewardToken that will fund this reward.
+   * @dev See `MultiRewardStaking` for more details.
+   */
+  function fundStakingRewards(
+    address[] calldata vaults,
+    IERC20[] calldata rewardTokens,
+    uint256[] calldata amounts
+  ) external {
+    uint8 len = uint8(vaults.length);
+
+    _verifyEqualArrayLength(len, rewardTokens.length);
+    _verifyEqualArrayLength(len, amounts.length);
 
     address staking;
-    uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      staking = vaultsRegistry.vaults(vaults[i]).staking;
+      staking = vaultRegistry.getVault(vaults[i]).staking;
 
-      (address rewardsToken, uint256 amount) = abi.decode(rewardsTokenData[i], (address, uint256));
-      IMultiRewardStaking(staking).fundReward(IERC20(rewardsToken), amount);
+      rewardTokens[i].transferFrom(msg.sender, address(this), amounts[i]);
+      IMultiRewardStaking(staking).fundReward(rewardTokens[i], amounts[i]);
     }
   }
 
   /*//////////////////////////////////////////////////////////////
-                          ESCROW MANAGEMENT LOGIC
+                      ESCROW MANAGEMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
   IMultiRewardEscrow public escrow;
 
-  function setEscrowTokenFee(IERC20[] memory tokens, uint256[] memory fees) external onlyOwner {
+  /**
+   * @notice Set fees for multiple tokens. Caller must be the owner.
+   * @param tokens Array of tokens.
+   * @param fees Array of fees for `tokens` in 1e18. (1e18 = 100%, 1e14 = 1 BPS)
+   * @dev See `MultiRewardEscrow` for more details.
+   */
+  function setEscrowTokenFees(IERC20[] calldata tokens, uint256[] calldata fees) external onlyOwner {
     _verifyEqualArrayLength(tokens.length, fees.length);
-    adminProxy.execute(address(escrow), abi.encodeWithSelector(IMultiRewardEscrow.setFees.selector, tokens, fees));
+    (bool success, bytes memory returnData) = adminProxy.execute(
+      address(escrow),
+      abi.encodeWithSelector(IMultiRewardEscrow.setFees.selector, tokens, fees)
+    );
+    if (!success) revert UnderlyingError(returnData);
   }
 
   /*//////////////////////////////////////////////////////////////
-                          FACTORY MANAGEMENT LOGIC
+                          TEMPLATE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function addTemplateType(bytes32[] memory templateTypes) external onlyOwner {
+  /**
+   * @notice Adds a new templateCategory to the registry. Caller must be owner.
+   * @param templateCategories A new category of templates.
+   * @dev See `TemplateRegistry` for more details.
+   */
+  function addTemplateCategories(bytes32[] calldata templateCategories) external onlyOwner {
     address _deploymentController = address(deploymentController);
-    uint8 len = uint8(templateTypes.length);
+    uint8 len = uint8(templateCategories.length);
     for (uint256 i = 0; i < len; i++) {
-      adminProxy.execute(
+      (bool success, bytes memory returnData) = adminProxy.execute(
         _deploymentController,
-        abi.encodeWithSelector(IDeploymentController.addTemplateType.selector, templateTypes[i])
+        abi.encodeWithSelector(IDeploymentController.addTemplateCategory.selector, templateCategories[i])
       );
+      if (!success) revert UnderlyingError(returnData);
+    }
+  }
+
+  /**
+   * @notice Toggles the endorsement of a templates. Caller must be owner.
+   * @param templateCategories TemplateCategory of the template to endorse.
+   * @param templateIds TemplateId of the template to endorse.
+   * @dev See `TemplateRegistry` for more details.
+   */
+  function toggleTemplateEndorsements(bytes32[] calldata templateCategories, bytes32[] calldata templateIds)
+    external
+    onlyOwner
+  {
+    uint8 len = uint8(templateCategories.length);
+    _verifyEqualArrayLength(len, templateIds.length);
+
+    address _deploymentController = address(deploymentController);
+    for (uint256 i = 0; i < len; i++) {
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        address(_deploymentController),
+        abi.encodeWithSelector(
+          ITemplateRegistry.toggleTemplateEndorsement.selector,
+          templateCategories[i],
+          templateIds[i]
+        )
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
@@ -404,35 +601,55 @@ contract VaultController is Owned {
                           PAUSING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function pauseAdapter(address[] calldata vaults) external {
+  /// @notice Pause Deposits and withdraw all funds from the underlying protocol. Caller must be owner or creator of the Vault.
+  function pauseAdapters(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodeWithSelector(IPausable.pause.selector));
+      _verifyCreatorOrOwner(vaults[i]);
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        IVault(vaults[i]).adapter(),
+        abi.encodeWithSelector(IPausable.pause.selector)
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
-  function pauseVault(address[] calldata vaults) external {
+  /// @notice Pause deposits. Caller must be owner or creator of the Vault.
+  function pauseVaults(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(vaults[i], abi.encodeWithSelector(IPausable.pause.selector));
+      _verifyCreatorOrOwner(vaults[i]);
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        vaults[i],
+        abi.encodeWithSelector(IPausable.pause.selector)
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
-  function unpauseAdapter(address[] calldata vaults) external {
+  /// @notice Unpause Deposits and deposit all funds into the underlying protocol. Caller must be owner or creator of the Vault.
+  function unpauseAdapters(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(IVault(vaults[i]).adapter(), abi.encodeWithSelector(IPausable.unpause.selector));
+      _verifyCreatorOrOwner(vaults[i]);
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        IVault(vaults[i]).adapter(),
+        abi.encodeWithSelector(IPausable.unpause.selector)
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
-  function unpauseVault(address[] calldata vaults) external {
+  /// @notice Unpause deposits. Caller must be owner or creator of the Vault.
+  function unpauseVaults(address[] calldata vaults) external {
     uint8 len = uint8(vaults.length);
     for (uint256 i = 0; i < len; i++) {
-      _verifySubmitterOrOwner(vaults[i]);
-      adminProxy.execute(vaults[i], abi.encodeWithSelector(IPausable.unpause.selector));
+      _verifyCreatorOrOwner(vaults[i]);
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        vaults[i],
+        abi.encodeWithSelector(IPausable.unpause.selector)
+      );
+      if (!success) revert UnderlyingError(returnData);
     }
   }
 
@@ -442,38 +659,55 @@ contract VaultController is Owned {
 
   error NotSubmitterNorOwner(address caller);
   error NotSubmitter(address caller);
-  error TokenNotAllowed(IERC20 token);
+  error NotAllowed(address subject);
   error AdapterConfigFaulty();
   error ArrayLengthMissmatch();
 
-  function _verifySubmitterOrOwner(address vault) internal view returns (VaultMetadata memory metadata) {
-    metadata = vaultsRegistry.vaults(vault);
-    if (msg.sender != metadata.submitter || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
+  /// @notice Verify that the caller is the creator of the vault or owner of `VaultController` (admin rights).
+  function _verifyCreatorOrOwner(address vault) internal returns (VaultMetadata memory metadata) {
+    metadata = vaultRegistry.getVault(vault);
+    if (msg.sender != metadata.creator || msg.sender != owner) revert NotSubmitterNorOwner(msg.sender);
   }
 
-  function _verifySubmitter(address vault) internal view returns (VaultMetadata memory metadata) {
-    metadata = vaultsRegistry.vaults(vault);
-    if (msg.sender != metadata.submitter) revert NotSubmitter(msg.sender);
+  /// @notice Verify that the caller is the creator of the vault.
+  function _verifyCreator(address vault) internal view returns (VaultMetadata memory metadata) {
+    metadata = vaultRegistry.getVault(vault);
+    if (msg.sender != metadata.creator) revert NotSubmitter(msg.sender);
   }
 
-  function _verifyToken(IERC20 token) internal view {
-    if (!endorsementRegistry.endorsed(address(token)) || !deploymentController.cloneExists(address(token)))
-      revert TokenNotAllowed(token);
+  /// @notice Verify that the token is not rejected nor a clone.
+  function _verifyToken(address token) internal view {
+    if (
+      (
+        permissionRegistry.endorsed(address(0))
+          ? !permissionRegistry.endorsed(token)
+          : permissionRegistry.rejected(token)
+      ) ||
+      cloneRegistry.cloneExists(token) ||
+      token == address(0)
+    ) revert NotAllowed(token);
   }
 
-  function _verifyAdapterConfiguration(
-    address adapter,
-    bytes32 adapterId,
-    IDeploymentController _deploymentController
-  ) internal view {
+  /// @notice Verify that the adapter configuration is valid.
+  function _verifyAdapterConfiguration(address adapter, bytes32 adapterId) internal view {
     if (adapter != address(0)) {
       if (adapterId > 0) revert AdapterConfigFaulty();
-      if (!_deploymentController.cloneExists(adapter)) revert AdapterConfigFaulty();
+      if (!cloneRegistry.cloneExists(adapter)) revert AdapterConfigFaulty();
     }
   }
 
+  /// @notice Verify that the array lengths are equal.
   function _verifyEqualArrayLength(uint256 length1, uint256 length2) internal pure {
     if (length1 != length2) revert ArrayLengthMissmatch();
+  }
+
+  modifier canCreate() {
+    if (
+      permissionRegistry.endorsed(address(1))
+        ? !permissionRegistry.endorsed(msg.sender)
+        : permissionRegistry.rejected(msg.sender)
+    ) revert NotAllowed(msg.sender);
+    _;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -483,19 +717,18 @@ contract VaultController is Owned {
   IAdminProxy public adminProxy;
 
   /**
-   * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts from controller
-   * @dev newOwner address must call acceptOwnership on registry and factory
+   * @notice Nominates a new owner of `AdminProxy`. Caller must be owner.
+   * @dev Must be called if the `VaultController` gets swapped out or upgraded
    */
   function nominateNewAdminProxyOwner(address newOwner) external onlyOwner {
     adminProxy.nominateNewOwner(newOwner);
   }
 
   /**
-   * @notice transfers ownership of VaultRegistry and VaultsV1Factory contracts to controller
-   * @dev registry and factory must nominate controller as new owner first
-   * acceptance function should be called when deploying controller contract
+   * @notice Accepts ownership of `AdminProxy`. Caller must be nominated owner.
+   * @dev Must be called after construction
    */
-  function acceptAdminProxyOwnership() external onlyOwner {
+  function acceptAdminProxyOwnership() external {
     adminProxy.acceptOwnership();
   }
 
@@ -503,21 +736,40 @@ contract VaultController is Owned {
                           MANAGEMENT FEE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  uint256 public managementFee;
+  uint256 public performanceFee;
 
-  error InvalidManagementFee(uint256 fee);
+  event PerformanceFeeChanged(uint256 oldFee, uint256 newFee);
 
-  event ManagementFeeChanged(uint256 oldFee, uint256 newFee);
+  error InvalidPerformanceFee(uint256 fee);
 
-  // TODO we would still need to update all adapter retroactively
-  function setManagementFee(uint256 newFee) external onlyOwner {
-    // Dont take more than 10% managementFee
-    // TODO what should be the range here?
-    if (newFee >= 1e17) revert InvalidManagementFee(newFee);
+  /**
+   * @notice Set a new performanceFee for all new adapters. Caller must be owner.
+   * @param newFee performance fee in 1e18.
+   * @dev Fees can be 0 but never more than 2e17 (1e18 = 100%, 1e14 = 1 BPS)
+   * @dev Can be retroactively applied to existing adapters.
+   */
+  function setPerformanceFee(uint256 newFee) external onlyOwner {
+    // Dont take more than 20% performanceFee
+    if (newFee > 2e17) revert InvalidPerformanceFee(newFee);
 
-    emit ManagementFeeChanged(managementFee, newFee);
+    emit PerformanceFeeChanged(performanceFee, newFee);
 
-    managementFee = newFee;
+    performanceFee = newFee;
+  }
+
+  /**
+   * @notice Set a new performanceFee for existing adapters. Caller must be owner.
+   * @param adapters array of adapters to set the management fee for.
+   */
+  function setAdapterPerformanceFees(address[] calldata adapters) external onlyOwner {
+    uint8 len = uint8(adapters.length);
+    for (uint256 i = 0; i < len; i++) {
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        adapters[i],
+        abi.encodeWithSelector(IAdapter.setPerformanceFee.selector, performanceFee)
+      );
+      if (!success) revert UnderlyingError(returnData);
+    }
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -526,37 +778,95 @@ contract VaultController is Owned {
 
   uint256 public harvestCooldown;
 
-  error InvalidHarvestCooldown(uint256 cooldown);
-
   event HarvestCooldownChanged(uint256 oldCooldown, uint256 newCooldown);
 
-  // TODO we would still need to update all adapter retroactively
+  error InvalidHarvestCooldown(uint256 cooldown);
+
+  /**
+   * @notice Set a new harvestCooldown for all new adapters. Caller must be owner.
+   * @param newCooldown Time in seconds that must pass before a harvest can be called again.
+   * @dev Cant be longer than 1 day.
+   * @dev Can be retroactively applied to existing adapters.
+   */
   function setHarvestCooldown(uint256 newCooldown) external onlyOwner {
     // Dont wait more than X seconds
-    // TODO what should be the range here?
-    if (newCooldown >= 1e17) revert InvalidHarvestCooldown(newCooldown);
+    if (newCooldown > 1 days) revert InvalidHarvestCooldown(newCooldown);
 
     emit HarvestCooldownChanged(harvestCooldown, newCooldown);
 
     harvestCooldown = newCooldown;
   }
 
+  /**
+   * @notice Set a new harvestCooldown for existing adapters. Caller must be owner.
+   * @param adapters Array of adapters to set the cooldown for.
+   */
+  function setAdapterHarvestCooldowns(address[] calldata adapters) external onlyOwner {
+    uint8 len = uint8(adapters.length);
+    for (uint256 i = 0; i < len; i++) {
+      (bool success, bytes memory returnData) = adminProxy.execute(
+        adapters[i],
+        abi.encodeWithSelector(IAdapter.setHarvestCooldown.selector, harvestCooldown)
+      );
+      if (!success) revert UnderlyingError(returnData);
+    }
+  }
+
   /*//////////////////////////////////////////////////////////////
-                          TEMPLATE KEY LOGIC
+                      DEPLYOMENT CONTROLLER LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  mapping(bytes32 => bytes32) public latestTemplateKey;
+  IDeploymentController public deploymentController;
+  ICloneRegistry public cloneRegistry;
+  ITemplateRegistry public templateRegistry;
+  IPermissionRegistry public permissionRegistry;
 
-  error TemplateKeyDoesntExist(bytes32 templateKey);
+  event DeploymentControllerChanged(address oldController, address newController);
 
-  event LatestTemplateKeyChanged(bytes32 oldKey, bytes32 newKey);
+  error InvalidDeploymentController(address deploymentController);
 
-  function setLatestTemplateKey(bytes32 templateKey, bytes32 latestKey) external onlyOwner {
-    bytes32 oldKey = latestTemplateKey[templateKey];
-    if (oldKey.length == 0) revert TemplateKeyDoesntExist(templateKey);
+  /**
+   * @notice Sets a new `DeploymentController` and saves its auxilary contracts. Caller must be owner.
+   * @param _deploymentController New DeploymentController.
+   */
+  function setDeploymentController(IDeploymentController _deploymentController) external onlyOwner {
+    _setDeploymentController(_deploymentController);
+  }
 
-    emit LatestTemplateKeyChanged(oldKey, latestKey);
+  function _setDeploymentController(IDeploymentController _deploymentController) internal {
+    if (address(_deploymentController) == address(0) || address(deploymentController) == address(_deploymentController))
+      revert InvalidDeploymentController(address(_deploymentController));
 
-    latestTemplateKey[templateKey] = latestKey;
+    emit DeploymentControllerChanged(address(deploymentController), address(_deploymentController));
+
+    deploymentController = _deploymentController;
+    cloneRegistry = _deploymentController.cloneRegistry();
+    templateRegistry = _deploymentController.templateRegistry();
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      TEMPLATE KEY LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+  mapping(bytes32 => bytes32) public activeTemplateId;
+
+  event ActiveTemplateIdChanged(bytes32 oldKey, bytes32 newKey);
+
+  error SameKey(bytes32 templateKey);
+
+  /**
+   * @notice Set a templateId which shall be used for deploying certain contracts. Caller must be owner.
+   * @param templateCategory TemplateCategory to set an active key for.
+   * @param templateId TemplateId that should be used when creating a new contract of `templateCategory`
+   * @dev Currently `Vault` and `Staking` use a template set via `activeTemplateId`.
+   * @dev If this contract should deploy Vaults of a second generation this can be set via the `activeTemplateId`.
+   */
+  function setActiveTemplateId(bytes32 templateCategory, bytes32 templateId) external onlyOwner {
+    bytes32 oldTemplateId = activeTemplateId[templateCategory];
+    if (oldTemplateId == templateId) revert SameKey(templateId);
+
+    emit ActiveTemplateIdChanged(oldTemplateId, templateId);
+
+    activeTemplateId[templateCategory] = templateId;
   }
 }
