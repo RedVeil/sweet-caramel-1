@@ -134,7 +134,7 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   /// @notice Withdraw from lending pool
   function _protocolWithdraw(uint256, uint256 shares) internal virtual override {
     uint256 aaveShares = convertToUnderlyingShares(0, shares);
-    lendingPool.withdraw(asset(), shares, address(this));
+    lendingPool.withdraw(asset(), aaveShares, address(this));
   }
 
   /*//////////////////////////////////////////////////////////////
