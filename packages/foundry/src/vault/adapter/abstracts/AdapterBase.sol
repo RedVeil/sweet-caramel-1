@@ -139,6 +139,12 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   function totalAssets() public view virtual override returns (uint256) {}
 
   /**
+   * @notice Apy of real yield provided by protocols such as Aave's aTokens.
+   * @dev This function is only necessary for protocols that provide real interest for underlying.
+   */
+  function getApy() public view virtual returns (uint256) {}
+
+  /**
    * @notice Convert either `assets` or `shares` into underlying shares
    * @dev This is an optional function for underlying protocols that require deposit/withdrawal amounts in their shares.
    */
