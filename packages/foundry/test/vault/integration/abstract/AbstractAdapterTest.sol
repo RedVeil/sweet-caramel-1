@@ -300,7 +300,7 @@ contract AbstractAdapterTest is PropertyTest {
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
 
-      uint256 reqAssets = (adapter.previewMint(adapter.previewWithdraw(amount)) * 10) / 9;
+      uint256 reqAssets = (adapter.previewMint(adapter.previewWithdraw(amount)) * 10) / 8;
       _mintFor(reqAssets, bob);
       vm.prank(bob);
       adapter.deposit(reqAssets, bob);
@@ -354,7 +354,7 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 assets = adapter.redeem(shares, bob, bob);
     vm.stopPrank();
 
-    assertApproxLeAbs(assets, defaultAmount, _delta_, testId);
+    assertLe(assets, defaultAmount, testId);
   }
 
   function test__RT_deposit_withdraw() public virtual {
@@ -365,7 +365,7 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 shares2 = adapter.withdraw(defaultAmount, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(shares2, shares1, _delta_, testId);
+    assertGe(shares2, shares1, testId);
   }
 
   function test__RT_mint_withdraw() public virtual {
@@ -376,7 +376,7 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 shares = adapter.withdraw(assets, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(shares, defaultAmount, _delta_, testId);
+    assertGe(shares, defaultAmount, testId);
   }
 
   function test__RT_mint_redeem() public virtual {
@@ -387,7 +387,7 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 assets2 = adapter.redeem(defaultAmount, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(assets2, assets1, _delta_, testId);
+    assertLe(assets2, assets1, testId);
   }
 
   /*//////////////////////////////////////////////////////////////

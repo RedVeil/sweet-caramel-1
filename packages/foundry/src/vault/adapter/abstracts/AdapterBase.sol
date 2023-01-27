@@ -123,11 +123,9 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   ) internal virtual override {
     IERC20(asset()).safeTransferFrom(caller, address(this), assets);
 
-    uint256 oldBal = _underlyingBalance();
     _protocolDeposit(assets, shares);
-    uint256 newBal = _underlyingBalance();
-    if (newBal == oldBal) revert ZeroAmount();
-    underlyingBalance = newBal;
+    // Update the underlying balance to prevent inflation attacks
+    underlyingBalance = _underlyingBalance();
 
     _mint(receiver, shares);
 
@@ -191,11 +189,9 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     }
 
     if (!paused()) {
-      uint256 oldBal = _underlyingBalance();
       _protocolWithdraw(assets, shares);
-      uint256 newBal = _underlyingBalance();
-      if (newBal == oldBal) revert ZeroAmount();
-      underlyingBalance = newBal;
+      // Update the underlying balance to prevent inflation attacks
+      underlyingBalance = _underlyingBalance();
     }
 
     _burn(owner, shares);
@@ -221,8 +217,17 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     return paused() ? IERC20(asset()).balanceOf(address(this)) : _totalAssets();
   }
 
+  /**
+   * @notice Total amount of underlying `asset` token managed by adapter through the underlying protocol.
+   * @dev This should utilize `underlyingBalance` to return the currently held assets and prevent inflation attacks.
+   */
   function _totalAssets() internal view virtual returns (uint256) {}
 
+  /**
+   * @notice Total amount of underlying balance owned by the adapter.
+   * @dev This could be the balance of shares held by the adapter or a similar balance call to prevent inflation attacks.
+   * @dev It should NOT return the actual asset amount.
+   */
   function _underlyingBalance() internal view virtual returns (uint256) {}
 
   /**
@@ -464,6 +469,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /// @notice Pause Deposits and withdraw all funds from the underlying protocol. Caller must be owner.
   function pause() external onlyOwner {
     _protocolWithdraw(totalAssets(), totalSupply());
+    // Update the underlying balance to prevent inflation attacks
     underlyingBalance = 0;
     _pause();
   }
@@ -471,6 +477,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /// @notice Unpause Deposits and deposit all funds into the underlying protocol. Caller must be owner.
   function unpause() external onlyOwner {
     _protocolDeposit(totalAssets(), totalSupply());
+    // Update the underlying balance to prevent inflation attacks
     underlyingBalance = _underlyingBalance();
     _unpause();
   }

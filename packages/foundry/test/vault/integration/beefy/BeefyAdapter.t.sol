@@ -178,7 +178,7 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     uint256 shares2 = adapter.withdraw(defaultAmount - 1, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(shares2, shares1, _delta_, testId);
+    assertGe(shares2, shares1, testId);
   }
 
   // NOTE - The beefy adapter suffers often from an off-by-one error which "steals" 1 wei from the user
@@ -190,6 +190,6 @@ contract BeefyAdapterTest is AbstractAdapterTest {
     uint256 shares = adapter.withdraw(assets - 1, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(shares, defaultAmount, _delta_, testId);
+    assertGe(shares, defaultAmount, testId);
   }
 }
