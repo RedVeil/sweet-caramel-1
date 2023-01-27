@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.15;
 
-import { CERC20 } from "libcompound/interfaces/CERC20.sol";
-
-interface ICToken is CERC20 {
+interface ICToken {
   /**
    * @dev Returns the address of the underlying asset of this cToken
    **/
@@ -20,6 +18,8 @@ interface ICToken is CERC20 {
   function comptroller() external view returns (address);
 
   function balanceOf(address) external view returns (uint256);
+
+  function balanceOfUnderlying(address) external view returns (uint256);
 
   /**
    * @dev Send underlying to mint cToken.
@@ -39,4 +39,16 @@ interface IComptroller {
    * @dev Returns the address of the underlying asset of this cToken
    **/
   function compSpeeds(address) external view returns (uint256);
+
+  /**
+   * @dev Returns the isListed, collateralFactorMantissa, and isCompred of the cToken market
+   **/
+  function markets(address)
+    external
+    view
+    returns (
+      bool,
+      uint256,
+      bool
+    );
 }

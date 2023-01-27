@@ -37,6 +37,7 @@ contract CompoundV2Adapter is AdapterBase, WithRewards {
     //////////////////////////////////////////////////////////////*/
 
   error DifferentAssets(address asset, address underlying);
+  error InvalidAsset(address asset);
 
   /**
    * @notice Initialize a new CompoundV2 Adapter.
@@ -63,6 +64,9 @@ contract CompoundV2Adapter is AdapterBase, WithRewards {
 
     comptroller = IComptroller(cToken.comptroller());
 
+    (bool isListed, , ) = comptroller.markets(address(cToken));
+    if (isListed == false) revert InvalidAsset(address(cToken));
+
     IERC20(asset()).approve(address(cToken), type(uint256).max);
 
     uint256 compSpeed = comptroller.compSpeeds(address(cToken));
@@ -82,13 +86,13 @@ contract CompoundV2Adapter is AdapterBase, WithRewards {
     //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view override returns (uint256) {
-    return paused() ? IERC20(asset()).balanceOf(address(this)) : cToken.balanceOf(address(this));
+    return paused() ? IERC20(asset()).balanceOf(address(this)) : cToken.balanceOfUnderlying(address(this));
   }
 
   /// @notice The amount of compound shares to withdraw given an mount of adapter shares
   function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
     uint256 supply = totalSupply();
-    return supply == 0 ? shares : shares.mulDiv(cToken.balanceOf(address(this)), supply, Math.Rounding.Up);
+    return supply == 0 ? shares : shares.mulDiv(cToken.balanceOfUnderlying(address(this)), supply, Math.Rounding.Up);
   }
 
   function previewWithdraw(uint256 assets) public view override returns (uint256) {
