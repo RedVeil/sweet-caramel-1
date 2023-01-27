@@ -37,6 +37,9 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   // @notice The Aave LendingPool contract
   ILendingPool public lendingPool;
 
+  uint256 internal constant RAY = 1e27;
+  uint256 internal constant halfRAY = RAY / 2;
+
   /*//////////////////////////////////////////////////////////////
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -90,14 +93,16 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
                             ACCOUNTING LOGIC
   //////////////////////////////////////////////////////////////*/
 
-  function totalAssets() public view override returns (uint256) {
-    return paused() ? IERC20(asset()).balanceOf(address(this)) : aToken.balanceOf(address(this));
+  function _totalAssets() internal view override returns (uint256) {
+    uint256 underlyingBalance_ = underlyingBalance;
+    return
+      underlyingBalance_ == 0
+        ? 0
+        : (underlyingBalance * lendingPool.getReserveNormalizedIncome(asset()) + halfRAY) / RAY;
   }
 
-  /// @notice The amount of aave shares to withdraw given an mount of adapter shares
-  function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
-    uint256 supply = totalSupply();
-    return supply == 0 ? shares : shares.mulDiv(aToken.balanceOf(address(this)), supply, Math.Rounding.Up);
+  function _underlyingBalance() internal view override returns (uint256) {
+    return aToken.scaledBalanceOf(address(this));
   }
 
   /// @notice The token rewarded if the aave liquidity mining is active
@@ -109,30 +114,17 @@ contract AaveV2Adapter is AdapterBase, WithRewards {
   }
 
   /*//////////////////////////////////////////////////////////////
-                        ACCOUNTING LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-  function previewWithdraw(uint256 assets) public view override returns (uint256) {
-    return _convertToShares(assets, Math.Rounding.Up);
-  }
-
-  function previewRedeem(uint256 shares) public view override returns (uint256) {
-    return _convertToAssets(shares, Math.Rounding.Down);
-  }
-
-  /*//////////////////////////////////////////////////////////////
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
   /// @notice Deposit into aave lending pool
-  function _protocolDeposit(uint256 amount, uint256) internal virtual override {
-    lendingPool.deposit(asset(), amount, address(this), 0);
+  function _protocolDeposit(uint256 assets, uint256) internal virtual override {
+    lendingPool.deposit(asset(), assets, address(this), 0);
   }
 
   /// @notice Withdraw from lending pool
-  function _protocolWithdraw(uint256, uint256 shares) internal virtual override {
-    uint256 aaveShares = convertToUnderlyingShares(0, shares);
-    lendingPool.withdraw(asset(), aaveShares, address(this));
+  function _protocolWithdraw(uint256 assets, uint256) internal virtual override {
+    lendingPool.withdraw(asset(), assets, address(this));
   }
 
   /*//////////////////////////////////////////////////////////////

@@ -82,6 +82,8 @@ interface ILendingPool {
    * @return The state of the reserve
    **/
   function getReserveData(address asset) external view returns (DataTypes.ReserveData memory);
+
+  function getReserveNormalizedIncome(address asset) external view returns (uint256);
 }
 
 // Aave protocol data provider

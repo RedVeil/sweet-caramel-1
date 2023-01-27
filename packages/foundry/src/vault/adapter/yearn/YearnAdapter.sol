@@ -60,8 +60,12 @@ contract YearnAdapter is AdapterBase {
   //////////////////////////////////////////////////////////////*/
 
   /// @notice Emulate yearns total asset calculation to return the total assets of the vault.
-  function totalAssets() public view override returns (uint256) {
-    return paused() ? IERC20(asset()).balanceOf(address(this)) : _shareValue(yVault.balanceOf(address(this)));
+  function _totalAssets() internal view override returns (uint256) {
+    return _shareValue(underlyingBalance);
+  }
+
+  function _underlyingBalance() internal view override returns (uint256) {
+    return yVault.balanceOf(address(this));
   }
 
   /// @notice Determines the current value of `yShares` in assets
@@ -73,14 +77,14 @@ contract YearnAdapter is AdapterBase {
 
   /// @notice The amount of assets that are free to be withdrawn from the yVault after locked profts.
   function _freeFunds() internal view returns (uint256) {
-    return _totalAssets() - _calculateLockedProfit();
+    return _yTotalAssets() - _calculateLockedProfit();
   }
 
   /**
    * @notice Returns the total quantity of all assets under control of this Vault,
    * whether they're loaned out to a Strategy, or currently held in the Vault.
    */
-  function _totalAssets() internal view returns (uint256) {
+  function _yTotalAssets() internal view returns (uint256) {
     return IERC20(asset()).balanceOf(address(yVault)) + yVault.totalDebt();
   }
 
@@ -98,7 +102,7 @@ contract YearnAdapter is AdapterBase {
 
   /// @notice The amount of yearn shares to withdraw given an amount of adapter shares
   function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
-    return shares.mulDiv(yVault.balanceOf(address(this)), totalSupply(), Math.Rounding.Up);
+    return shares.mulDiv(underlyingBalance, totalSupply(), Math.Rounding.Up);
   }
 
   /*//////////////////////////////////////////////////////////////

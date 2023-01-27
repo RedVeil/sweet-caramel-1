@@ -81,21 +81,18 @@ contract BeefyAdapter is AdapterBase, WithRewards {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function totalAssets() public view override returns (uint256) {
-    return
-      paused()
-        ? IERC20(asset()).balanceOf(address(this))
-        : beefyBalanceCheck.balanceOf(address(this)).mulDiv(
-          beefyVault.balance(),
-          beefyVault.totalSupply(),
-          Math.Rounding.Down
-        );
+  function _totalAssets() internal view override returns (uint256) {
+    return underlyingBalance.mulDiv(beefyVault.balance(), beefyVault.totalSupply(), Math.Rounding.Down);
+  }
+
+  function _underlyingBalance() internal view override returns (uint256) {
+    return beefyBalanceCheck.balanceOf(address(this));
   }
 
   /// @notice The amount of beefy shares to withdraw given an amount of adapter shares
   function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
     uint256 supply = totalSupply();
-    return supply == 0 ? shares : shares.mulDiv(beefyBalanceCheck.balanceOf(address(this)), supply, Math.Rounding.Up);
+    return supply == 0 ? shares : shares.mulDiv(underlyingBalance, supply, Math.Rounding.Up);
   }
 
   /// @notice The token rewarded if a beefy booster is configured

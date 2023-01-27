@@ -81,6 +81,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     //////////////////////////////////////////////////////////////*/
 
   error MaxError(uint256 amount);
+  error ZeroAmount();
 
   /**
    * @notice Deposits assets into the underlying protocol and mints vault shares to `receiver`.
@@ -122,7 +123,11 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   ) internal virtual override {
     IERC20(asset()).safeTransferFrom(caller, address(this), assets);
 
+    uint256 oldBal = _underlyingBalance();
     _protocolDeposit(assets, shares);
+    uint256 newBal = _underlyingBalance();
+    if (newBal == oldBal) revert ZeroAmount();
+    underlyingBalance = newBal;
 
     _mint(receiver, shares);
 
@@ -145,6 +150,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     if (assets > maxWithdraw(owner)) revert MaxError(assets);
 
     uint256 shares = _previewWithdraw(assets);
+
     _withdraw(_msgSender(), receiver, owner, assets, shares);
 
     return shares;
@@ -185,7 +191,11 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     }
 
     if (!paused()) {
+      uint256 oldBal = _underlyingBalance();
       _protocolWithdraw(assets, shares);
+      uint256 newBal = _underlyingBalance();
+      if (newBal == oldBal) revert ZeroAmount();
+      underlyingBalance = newBal;
     }
 
     _burn(owner, shares);
@@ -201,11 +211,19 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  uint256 internal underlyingBalance;
+
   /**
    * @notice Total amount of underlying `asset` token managed by adapter.
    * @dev Return assets held by adapter if paused.
    */
-  function totalAssets() public view virtual override returns (uint256) {}
+  function totalAssets() public view override returns (uint256) {
+    return paused() ? IERC20(asset()).balanceOf(address(this)) : _totalAssets();
+  }
+
+  function _totalAssets() internal view virtual returns (uint256) {}
+
+  function _underlyingBalance() internal view virtual returns (uint256) {}
 
   /**
    * @notice Convert either `assets` or `shares` into underlying shares
@@ -388,7 +406,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   //////////////////////////////////////////////////////////////*/
 
   uint256 public performanceFee;
-  uint256 internal highWaterMark;
+  uint256 public highWaterMark;
 
   // TODO use deterministic fee recipient proxy
   address FEE_RECIPIENT = address(0x4444);
@@ -433,11 +451,10 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     _;
 
     uint256 fee = accruedPerformanceFee();
-
-    // TODO what happens if someone burns the last supply?
     if (fee > 0) _mint(FEE_RECIPIENT, convertToShares(fee));
 
-    highWaterMark = convertToAssets(1e18);
+    uint256 shareValue = convertToAssets(1e18);
+    if (shareValue > highWaterMark) highWaterMark = shareValue;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -447,12 +464,14 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   /// @notice Pause Deposits and withdraw all funds from the underlying protocol. Caller must be owner.
   function pause() external onlyOwner {
     _protocolWithdraw(totalAssets(), totalSupply());
+    underlyingBalance = 0;
     _pause();
   }
 
   /// @notice Unpause Deposits and deposit all funds into the underlying protocol. Caller must be owner.
   function unpause() external onlyOwner {
     _protocolDeposit(totalAssets(), totalSupply());
+    underlyingBalance = _underlyingBalance();
     _unpause();
   }
 

@@ -480,11 +480,11 @@ contract AbstractAdapterTest is PropertyTest {
 
     uint256 oldTotalAssets = adapter.totalAssets();
     adapter.setPerformanceFee(performanceFee);
-    increasePricePerShare(defaultAmount);
+    increasePricePerShare(raise * 100);
 
-    uint256 expectedFee = adapter.convertToShares(
-      performanceFee.mulDiv((adapter.convertToAssets(1e18) - hwm) * adapter.totalSupply(), 1e36, Math.Rounding.Down)
-    );
+    uint256 gain = ((adapter.convertToAssets(1e18) - adapter.highWaterMark()) * adapter.totalSupply()) / 1e18;
+    uint256 fee = (gain * performanceFee) / 1e18;
+    uint256 expectedFee = adapter.convertToShares(fee);
 
     vm.expectEmit(false, false, false, true, address(adapter));
     emit Harvested();

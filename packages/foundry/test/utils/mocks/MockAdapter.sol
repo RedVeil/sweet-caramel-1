@@ -27,7 +27,11 @@ contract MockAdapter is AdapterBase {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function totalAssets() public view override returns (uint256) {
+  function _totalAssets() internal view override returns (uint256) {
+    return underlyingBalance;
+  }
+
+  function _underlyingBalance() internal view override returns (uint256) {
     return IERC20(asset()).balanceOf(address(this));
   }
 
