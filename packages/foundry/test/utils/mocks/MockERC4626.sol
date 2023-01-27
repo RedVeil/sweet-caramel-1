@@ -6,11 +6,11 @@ import { IERC4626, IERC20 } from "../../../src/interfaces/vault/IERC4626.sol";
 import { ERC20 } from "openzeppelin-contracts/token/ERC20/ERC20.sol";
 import { IERC20Metadata } from "openzeppelin-contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { SafeERC20Upgradeable as SafeERC20 } from "openzeppelin-contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import { FixedPointMathLib } from "solmate/utils/FixedPointMathLib.sol";
+import { Math } from "openzeppelin-contracts/utils/math/Math.sol";
 
 contract MockERC4626 is ERC20 {
   using SafeERC20 for IERC20;
-  using FixedPointMathLib for uint256;
+  using Math for uint256;
 
   uint256 public beforeWithdrawHookCalledCounter = 0;
   uint256 public afterDepositHookCalledCounter = 0;
@@ -131,36 +131,83 @@ contract MockERC4626 is ERC20 {
     return asset.balanceOf(address(this));
   }
 
-  function convertToShares(uint256 assets) public view virtual returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-    return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+  /// @notice See _previewDeposit natspec
+  function previewDeposit(uint256 assets) public view returns (uint256) {
+    return _previewDeposit(assets);
   }
 
-  function convertToAssets(uint256 shares) public view virtual returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-    return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
+  /**
+   * @notice Simulate the effects of a deposit at the current block, given current on-chain conditions.
+   * @dev Return 0 if paused since no further deposits are allowed.
+   * @dev Override this function if the underlying protocol has a unique deposit logic and/or deposit fees.
+   */
+  function _previewDeposit(uint256 assets) internal view returns (uint256) {
+    return _convertToShares(assets, Math.Rounding.Down);
   }
 
-  function previewDeposit(uint256 assets) public view virtual returns (uint256) {
-    return convertToShares(assets);
+  /// @notice See _previewMint natspec
+  function previewMint(uint256 shares) public view returns (uint256) {
+    return _previewMint(shares);
   }
 
-  function previewMint(uint256 shares) public view virtual returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-    return supply == 0 ? shares : shares.mulDivUp(totalAssets(), supply);
+  /**
+   * @notice Simulate the effects of a mint at the current block, given current on-chain conditions.
+   * @dev Return 0 if paused since no further deposits are allowed.
+   * @dev Override this function if the underlying protocol has a unique deposit logic and/or deposit fees.
+   */
+  function _previewMint(uint256 shares) internal view returns (uint256) {
+    return _convertToAssets(shares, Math.Rounding.Up);
   }
 
-  function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-    return supply == 0 ? assets : assets.mulDivUp(supply, totalAssets());
+  /// @notice See _previewWithdraw natspec
+  function previewWithdraw(uint256 assets) public view returns (uint256) {
+    return _previewWithdraw(assets);
   }
 
-  function previewRedeem(uint256 shares) public view virtual returns (uint256) {
-    return convertToAssets(shares);
+  /**
+   * @notice Simulate the effects of a withdraw at the current block, given current on-chain conditions.
+   * @dev Override this function if the underlying protocol has a unique withdrawal logic and/or withdraw fees.
+   */
+  function _previewWithdraw(uint256 assets) internal view returns (uint256) {
+    return _convertToShares(assets, Math.Rounding.Up);
+  }
+
+  /// @notice See _previewRedeem natspec
+  function previewRedeem(uint256 shares) public view returns (uint256) {
+    return _previewRedeem(shares);
+  }
+
+  /**
+   * @notice Simulate the effects of a redeem at the current block, given current on-chain conditions.
+   * @dev Override this function if the underlying protocol has a unique redeem logic and/or redeem fees.
+   */
+  function _previewRedeem(uint256 shares) internal view returns (uint256) {
+    return _convertToAssets(shares, Math.Rounding.Down);
+  }
+
+  function convertToShares(uint256 assets) public view returns (uint256) {
+    return _convertToShares(assets, Math.Rounding.Down);
+  }
+
+  /**
+   * @notice Amount of shares the vault would exchange for given amount of assets, in an ideal scenario.
+   * @dev Added totalAssets() check to prevent division by zero in case of rounding issues. (off-by-one issue)
+   */
+  function _convertToShares(uint256 assets, Math.Rounding rounding) internal view returns (uint256 shares) {
+    return assets.mulDiv(totalSupply() + 1e8, totalAssets() + 1, rounding);
+  }
+
+  function convertToAssets(uint256 shares) public view returns (uint256) {
+    return _convertToAssets(shares, Math.Rounding.Down);
+  }
+
+  /**
+   * @notice Amount of assets the vault would exchange for given amount of shares, in an ideal scenario.
+   * @param shares Exact amount of shares
+   * @return Exact amount of assets
+   */
+  function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view returns (uint256) {
+    return shares.mulDiv(totalAssets() + 1, totalSupply() + 1e8, rounding);
   }
 
   /*//////////////////////////////////////////////////////////////

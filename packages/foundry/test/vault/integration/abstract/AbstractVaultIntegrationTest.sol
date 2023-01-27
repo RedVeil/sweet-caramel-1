@@ -60,7 +60,7 @@ contract AbstractVaultIntegrationTest is Test {
     adapter = adapter_;
     baseTestId = baseTestId_;
     maxConfigs = maxConfigs_;
-    defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
+    defaultAmount = 1e9;
     maxDeposit = defaultAmount * 10_000;
 
     address vaultAddress = address(new Vault());
@@ -187,11 +187,15 @@ contract AbstractVaultIntegrationTest is Test {
 
       uint256 expectedShares = vault.previewDeposit(amount);
       uint256 actualShares = deposit(amount);
+      emit log_named_uint("expectedShares", expectedShares);
+      emit log_named_uint("actualShares", actualShares);
       assertWithin(actualShares, expectedShares, 1, string.concat("deposit-", testId));
 
       expectedShares = vault.previewWithdraw(amount);
       vm.prank(bob);
       actualShares = vault.withdraw(amount);
+      emit log_named_uint("expectedShares2", expectedShares);
+      emit log_named_uint("actualShares2", actualShares);
       assertWithin(actualShares, expectedShares, 1, string.concat("withdraw-", testId));
     }
   }

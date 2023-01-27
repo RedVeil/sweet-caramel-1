@@ -110,6 +110,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     return assets;
   }
 
+  error NoAdditionalAssets();
+
   /**
    * @notice Deposit `assets` into the underlying protocol and mints vault shares to `receiver`.
    * @dev Executes harvest if `harvestCooldown` is passed since last invocation.
@@ -122,7 +124,10 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   ) internal virtual override {
     IERC20(asset()).safeTransferFrom(caller, address(this), assets);
 
+    uint256 oldAssets = totalAssets();
     _protocolDeposit(assets, shares);
+
+    if (totalAssets() <= oldAssets) revert NoAdditionalAssets();
 
     _mint(receiver, shares);
 
@@ -278,12 +283,16 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     override
     returns (uint256 shares)
   {
-    uint256 _totalSupply = totalSupply();
-    uint256 _totalAssets = totalAssets();
-    return
-      (assets == 0 || _totalSupply == 0 || _totalAssets == 0)
-        ? assets
-        : assets.mulDiv(_totalSupply, _totalAssets, rounding);
+    return assets.mulDiv(totalSupply() + 1e8, totalAssets() + 1, rounding);
+  }
+
+  /**
+   * @notice Amount of assets the vault would exchange for given amount of shares, in an ideal scenario.
+   * @param shares Exact amount of shares
+   * @return Exact amount of assets
+   */
+  function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual override returns (uint256) {
+    return shares.mulDiv(totalAssets() + 1, totalSupply() + 1e8, rounding);
   }
 
   /*//////////////////////////////////////////////////////////////

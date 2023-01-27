@@ -63,7 +63,7 @@ contract AbstractAdapterTest is PropertyTest {
     defaultAmount = 10**IERC20Metadata(address(asset_)).decimals();
 
     raise = defaultAmount * 100_000;
-    maxAssets = defaultAmount * 1000;
+    maxAssets = defaultAmount * 1e8;
     maxShares = maxAssets / 2;
 
     baseTestId = baseTestId_;
@@ -227,7 +227,7 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__previewMint(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
+    uint256 amount = bound(uint256(fuzzAmount), 1e9, maxShares);
 
     deal(address(asset), bob, maxAssets);
     vm.prank(bob);
@@ -248,7 +248,7 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__previewRedeem(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
+    uint256 amount = bound(uint256(fuzzAmount), 1e9, maxShares);
 
     uint256 reqAssets = (adapter.previewMint(amount) * 10) / 9;
     _mintFor(reqAssets, bob);
@@ -279,7 +279,7 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__mint(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
+    uint256 amount = bound(uint256(fuzzAmount), 1e9, maxShares);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
@@ -319,7 +319,7 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__redeem(uint8 fuzzAmount) public virtual {
-    uint256 amount = bound(uint256(fuzzAmount), 10, maxShares);
+    uint256 amount = bound(uint256(fuzzAmount), 1e9, maxShares);
     uint8 len = uint8(testConfigStorage.getTestConfigLength());
     for (uint8 i; i < len; i++) {
       if (i > 0) overrideSetup(testConfigStorage.getTestConfig(i));
@@ -354,7 +354,7 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 assets = adapter.redeem(shares, bob, bob);
     vm.stopPrank();
 
-    assertApproxLeAbs(assets, defaultAmount, _delta_, testId);
+    assertLe(assets, defaultAmount, testId);
   }
 
   function test__RT_deposit_withdraw() public virtual {
@@ -365,29 +365,29 @@ contract AbstractAdapterTest is PropertyTest {
     uint256 shares2 = adapter.withdraw(defaultAmount, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(shares2, shares1, _delta_, testId);
+    assertGe(shares2, shares1, testId);
   }
 
   function test__RT_mint_withdraw() public virtual {
-    _mintFor(adapter.previewMint(defaultAmount), bob);
+    _mintFor(adapter.previewMint(1e9), bob);
 
     vm.startPrank(bob);
-    uint256 assets = adapter.mint(defaultAmount, bob);
+    uint256 assets = adapter.mint(1e9, bob);
     uint256 shares = adapter.withdraw(assets, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(shares, defaultAmount, _delta_, testId);
+    assertGe(shares, 1e9, testId);
   }
 
   function test__RT_mint_redeem() public virtual {
-    _mintFor(adapter.previewMint(defaultAmount), bob);
+    _mintFor(adapter.previewMint(1e9), bob);
 
     vm.startPrank(bob);
-    uint256 assets1 = adapter.mint(defaultAmount, bob);
-    uint256 assets2 = adapter.redeem(defaultAmount, bob, bob);
+    uint256 assets1 = adapter.mint(1e9, bob);
+    uint256 assets2 = adapter.redeem(1e9, bob, bob);
     vm.stopPrank();
 
-    assertApproxGeAbs(assets2, assets1, _delta_, testId);
+    assertLe(assets2, assets1, testId);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -421,8 +421,8 @@ contract AbstractAdapterTest is PropertyTest {
     adapter.mint(defaultAmount, bob);
 
     // Withdraw and Redeem dont revert
-    adapter.withdraw(defaultAmount / 10, bob, bob);
-    adapter.redeem(defaultAmount / 10, bob, bob);
+    adapter.withdraw(1, bob, bob);
+    adapter.redeem(1, bob, bob);
   }
 
   function testFail__pause_nonOwner() public virtual {
@@ -431,10 +431,10 @@ contract AbstractAdapterTest is PropertyTest {
   }
 
   function test__unpause() public virtual {
-    _mintFor(defaultAmount * 3, bob);
+    _mintFor(defaultAmount, bob);
 
     vm.prank(bob);
-    adapter.deposit(defaultAmount, bob);
+    adapter.deposit(10, bob);
 
     uint256 oldTotalAssets = adapter.totalAssets();
     uint256 oldTotalSupply = adapter.totalSupply();
@@ -452,8 +452,8 @@ contract AbstractAdapterTest is PropertyTest {
 
     // Deposit and mint dont revert
     vm.startPrank(bob);
-    adapter.deposit(defaultAmount, bob);
-    adapter.mint(defaultAmount, bob);
+    adapter.deposit(10, bob);
+    adapter.mint(1e9, bob);
   }
 
   function testFail__unpause_nonOwner() public virtual {

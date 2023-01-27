@@ -260,9 +260,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @return Exact amount of shares
    */
   function convertToShares(uint256 assets) public view returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-    return supply == 0 ? assets : assets.mulDiv(supply, totalAssets(), Math.Rounding.Down);
+    return adapter.convertToShares(assets);
   }
 
   /**
@@ -271,9 +269,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
    * @return Exact amount of assets
    */
   function convertToAssets(uint256 shares) public view returns (uint256) {
-    uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
-
-    return supply == 0 ? shares : shares.mulDiv(totalAssets(), supply, Math.Rounding.Down);
+    return adapter.convertToAssets(shares);
   }
 
   /**
@@ -385,8 +381,8 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
     uint256 performanceFee = fees.performance;
 
     return
-      performanceFee > 0 && shareValue > highWaterMark
-        ? performanceFee.mulDiv((shareValue - highWaterMark) * totalSupply(), 1e36, Math.Rounding.Down)
+      performanceFee > 0 && shareValue > highWaterMark_
+        ? performanceFee.mulDiv((shareValue - highWaterMark_) * totalSupply(), 1e36, Math.Rounding.Down)
         : 0;
   }
 
