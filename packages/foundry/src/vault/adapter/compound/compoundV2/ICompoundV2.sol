@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.15;
 
-interface ICToken {
+import { CERC20 } from "libcompound/interfaces/CERC20.sol";
+
+interface ICToken is CERC20 {
   /**
    * @dev Returns the address of the underlying asset of this cToken
    **/
