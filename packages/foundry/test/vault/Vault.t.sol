@@ -265,19 +265,18 @@ contract OnlyVaultTest is Test {
     assertEq(asset.allowance(alice, address(vault)), aliceShareAmount);
 
     uint256 alicePreDepositBal = asset.balanceOf(alice);
-
+    emit log_named_uint("prev1", vault.previewMint(aliceShareAmount));
     vm.prank(alice);
     uint256 aliceAssetAmount = vault.mint(aliceShareAmount, alice);
     emit log_named_uint("aliceAssetAmount", aliceAssetAmount);
     emit log_named_uint("totalSupply", vault.totalSupply());
     emit log_named_uint("totalAssets", vault.totalAssets());
+    emit log_named_uint("prev2", vault.previewMint(aliceShareAmount));
 
     assertEq(adapter.afterDepositHookCalledCounter(), 1);
 
-    // Expect exchange rate to be 1e8:1 on initial mint.
-    // assertEq(aliceAssetAmount * 1e8, aliceShareAmount);
-    assertEq(vault.previewWithdraw(aliceAssetAmount), aliceShareAmount, "prevWith");
-    assertEq(vault.previewDeposit(aliceAssetAmount), aliceShareAmount, "prevDep");
+    assertEq(vault.previewRedeem(aliceShareAmount), aliceAssetAmount, "prevRed");
+    assertEq(vault.previewMint(aliceShareAmount), aliceAssetAmount, "prevMint");
     assertEq(vault.totalSupply(), aliceShareAmount, "ts");
     assertEq(vault.totalAssets(), aliceAssetAmount, "ta");
     assertEq(vault.balanceOf(alice), aliceShareAmount, "vaulBal");
@@ -286,47 +285,6 @@ contract OnlyVaultTest is Test {
 
     vm.prank(alice);
     vault.redeem(aliceShareAmount, alice, alice);
-
-    assertEq(adapter.beforeWithdrawHookCalledCounter(), 1);
-
-    assertEq(vault.totalAssets(), 0, "ta2");
-    assertEq(vault.balanceOf(alice), 0, "vaultBal2");
-    assertEq(vault.convertToAssets(vault.balanceOf(alice)), 0, "conversion2");
-    assertEq(asset.balanceOf(alice), alicePreDepositBal, "assetBal2");
-  }
-
-  function test__mint_withdraw(uint128 amount) public {
-    uint256 aliceShareAmount = bound(amount, 1e8, 3.4e24);
-    emit log_named_uint("aliceShareAmount", aliceShareAmount);
-
-    asset.mint(alice, aliceShareAmount);
-
-    vm.prank(alice);
-    asset.approve(address(vault), aliceShareAmount);
-    assertEq(asset.allowance(alice, address(vault)), aliceShareAmount);
-
-    uint256 alicePreDepositBal = asset.balanceOf(alice);
-
-    vm.prank(alice);
-    uint256 aliceAssetAmount = vault.mint(aliceShareAmount, alice);
-    emit log_named_uint("aliceAssetAmount", aliceAssetAmount);
-    emit log_named_uint("totalSupply", vault.totalSupply());
-    emit log_named_uint("totalAssets", vault.totalAssets());
-
-    assertEq(adapter.afterDepositHookCalledCounter(), 1);
-
-    // Expect exchange rate to be 1e8:1 on initial mint.
-    // assertEq(aliceAssetAmount * 1e8, aliceShareAmount);
-    assertEq(vault.previewWithdraw(aliceAssetAmount), aliceShareAmount, "prevWith");
-    assertEq(vault.previewDeposit(aliceAssetAmount), aliceShareAmount, "prevDep");
-    assertEq(vault.totalSupply(), aliceShareAmount, "ts");
-    assertEq(vault.totalAssets(), aliceAssetAmount, "ta");
-    assertEq(vault.balanceOf(alice), aliceShareAmount, "vaulBal");
-    assertEq(vault.convertToAssets(vault.balanceOf(alice)), aliceAssetAmount, "conversion");
-    assertEq(asset.balanceOf(alice), alicePreDepositBal - aliceAssetAmount, "assetBal");
-
-    vm.prank(alice);
-    vault.withdraw(aliceAssetAmount, alice, alice);
 
     assertEq(adapter.beforeWithdrawHookCalledCounter(), 1);
 

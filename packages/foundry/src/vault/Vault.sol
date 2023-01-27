@@ -126,7 +126,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
 
     uint256 feeShares = convertToShares(assets.mulDiv(uint256(fees.deposit), 1e18, Math.Rounding.Down));
 
-    shares = convertToShares(assets) - feeShares;
+    shares = adapter.previewDeposit(assets) - feeShares;
 
     if (feeShares > 0) _mint(feeRecipient, feeShares);
 
@@ -162,7 +162,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
 
     uint256 feeShares = shares.mulDiv(depositFee, 1e18 - depositFee, Math.Rounding.Down);
 
-    assets = convertToAssets(shares + feeShares);
+    assets = adapter.previewMint(shares + feeShares);
 
     if (feeShares > 0) _mint(feeRecipient, feeShares);
 
@@ -193,7 +193,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
   ) public nonReentrant syncFeeCheckpoint returns (uint256 shares) {
     if (receiver == address(0)) revert InvalidReceiver();
 
-    shares = convertToShares(assets);
+    shares = adapter.previewWithdraw(assets);
 
     uint256 withdrawalFee = uint256(fees.withdrawal);
 
@@ -234,7 +234,7 @@ contract Vault is ERC20Upgradeable, ReentrancyGuardUpgradeable, PausableUpgradea
 
     uint256 feeShares = shares.mulDiv(uint256(fees.withdrawal), 1e18, Math.Rounding.Down);
 
-    assets = convertToAssets(shares - feeShares);
+    assets = adapter.previewRedeem(shares - feeShares);
 
     _burn(owner, shares);
 
