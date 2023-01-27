@@ -16,7 +16,7 @@ contract CompoundV2VaultTest is AbstractVaultIntegrationTest {
   IStrategy strategy;
 
   function setUp() public {
-    uint256 forkId = vm.createSelectFork(vm.rpcUrl("Mainnet"));
+    uint256 forkId = vm.createSelectFork(vm.rpcUrl("mainnet"));
     vm.selectFork(forkId);
 
     testConfigStorage = ITestConfigStorage(address(new CompoundV2TestConfigStorage()));
