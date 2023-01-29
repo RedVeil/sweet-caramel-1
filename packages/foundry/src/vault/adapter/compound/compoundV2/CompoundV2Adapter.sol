@@ -6,6 +6,7 @@ pragma solidity ^0.8.15;
 import { AdapterBase, IERC20, IERC20Metadata, SafeERC20, ERC20, Math, IStrategy, IAdapter } from "../../abstracts/AdapterBase.sol";
 import { WithRewards, IWithRewards } from "../../abstracts/WithRewards.sol";
 import { ICToken, IComptroller } from "./ICompoundV2.sol";
+import { LibFuse, CToken } from "../../../../../lib/libcompound/src/LibFuse.sol";
 
 /**
  * @title   CompoundV2 Adapter
@@ -85,14 +86,23 @@ contract CompoundV2Adapter is AdapterBase, WithRewards {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
+  function viewUnderlyingBalanceOf(address token, address user) public view override returns (uint256) {
+    CToken token = CToken(token);
+    return LibFuse.viewUnderlyingBalanceOf(token, user);
+  }
+
   function totalAssets() public view override returns (uint256) {
-    return paused() ? IERC20(asset()).balanceOf(address(this)) : cToken.balanceOfUnderlying(address(this));
+    return
+      paused() ? IERC20(asset()).balanceOf(address(this)) : viewUnderlyingBalanceOf(address(cToken), address(this));
   }
 
   /// @notice The amount of compound shares to withdraw given an mount of adapter shares
   function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
     uint256 supply = totalSupply();
-    return supply == 0 ? shares : shares.mulDiv(cToken.balanceOfUnderlying(address(this)), supply, Math.Rounding.Up);
+    return
+      supply == 0
+        ? shares
+        : shares.mulDiv(viewUnderlyingBalanceOf(address(cToken), address(this)), supply, Math.Rounding.Up);
   }
 
   function previewWithdraw(uint256 assets) public view override returns (uint256) {

@@ -31,22 +31,23 @@ contract CompoundV2AdapterTest is AbstractAdapterTest {
   function _setUpTest(bytes memory testConfig) internal {
     createAdapter();
 
-    address _asset = abi.decode(testConfig, (address));
+    address _cToken = abi.decode(testConfig, (address));
 
-    cToken = ICToken(_asset);
+    cToken = ICToken(_cToken);
+    asset = IERC20(cToken.underlying());
     comptroller = IComptroller(cToken.comptroller());
 
     (bool isListed, , ) = comptroller.markets(address(cToken));
     assertEq(isListed, true, "InvalidAsset");
 
-    setUpBaseTest(IERC20(_asset), adapter, address(comptroller), 10, "CompoundV2", true);
+    setUpBaseTest(IERC20(asset), adapter, address(comptroller), 10, "CompoundV2", true);
 
     vm.label(address(cToken), "cToken");
     vm.label(address(comptroller), "comptroller");
     vm.label(address(asset), "asset");
     vm.label(address(this), "test");
 
-    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), address(comptroller), "");
+    adapter.initialize(abi.encode(asset, address(this), strategy, 0, sigs, ""), externalRegistry, testConfig);
   }
 
   /*//////////////////////////////////////////////////////////////
