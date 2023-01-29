@@ -47,7 +47,7 @@ contract BeefyAdapter is AdapterBase, WithRewards {
     bytes memory adapterInitData,
     address registry,
     bytes memory beefyInitData
-  ) public {
+  ) external initializer {
     (address _beefyVault, address _beefyBooster) = abi.decode(beefyInitData, (address, address));
     __AdapterBase_init(adapterInitData);
 

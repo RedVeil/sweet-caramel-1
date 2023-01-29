@@ -5,7 +5,11 @@ import { Initializable } from "openzeppelin-contracts-upgradeable/proxy/utils/In
 contract ClonableWithoutInitData is Initializable {
   uint256 public immutable val = uint256(10);
 
-  function initialize() public initializer {}
+  bool public initDone;
+
+  function initialize() external initializer {
+    initDone = true;
+  }
 
   function fail() external pure {
     revert("This always reverts");

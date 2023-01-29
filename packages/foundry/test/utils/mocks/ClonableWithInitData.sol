@@ -5,7 +5,7 @@ import { Initializable } from "openzeppelin-contracts-upgradeable/proxy/utils/In
 contract ClonableWithInitData is Initializable {
   uint256 public val;
 
-  function initialize(uint256 _val) public initializer {
+  function initialize(uint256 _val) external initializer {
     val = _val;
   }
 }

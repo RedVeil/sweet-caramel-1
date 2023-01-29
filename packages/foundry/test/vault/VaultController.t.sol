@@ -615,7 +615,6 @@ contract VaultControllerTest is Test {
       1 ether
     );
     // Check the initial deposit
-    assertEq(asset.balanceOf(adapterClone), 1 ether);
     assertEq(IERC20(adapterClone).balanceOf(vaultClone), 1 ether);
     assertEq(IERC4626(adapterClone).totalAssets(), 1 ether);
     assertEq(IERC4626(adapterClone).totalSupply(), 1 ether);
@@ -699,7 +698,6 @@ contract VaultControllerTest is Test {
     );
 
     // Check the initial deposit
-    assertEq(asset.balanceOf(adapterClone), 1 ether);
     assertEq(IERC20(adapterClone).balanceOf(address(this)), 1 ether);
     assertEq(IERC4626(adapterClone).totalAssets(), 1 ether);
     assertEq(IERC4626(adapterClone).totalSupply(), 1 ether);

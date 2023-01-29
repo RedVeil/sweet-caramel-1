@@ -34,7 +34,7 @@ contract CloneFactoryTest is Test {
       implementation: address(clonableWithoutInitDataImpl),
       endorsed: false,
       metadataCid: metadataCid,
-      requiresInitData: false,
+      requiresInitData: true,
       registry: registry,
       requiredSigs: requiredSigs
     });
@@ -42,9 +42,12 @@ contract CloneFactoryTest is Test {
     vm.expectEmit(true, false, false, false);
     emit Deployment(address(0x4f81992FCe2E1846dD528eC0102e6eE1f61ed3e2));
 
-    address clone = factory.deploy(template, "");
-
+    address clone = factory.deploy(template, abi.encodeWithSelector(bytes4(keccak256("initialize()")), ""));
+    assertTrue(ClonableWithoutInitData(clone).initDone());
     assertEq(ClonableWithoutInitData(clone).val(), 10);
+
+    clone = factory.deploy(template, abi.encodeWithSelector(bytes4(keccak256("initialize()")), ""));
+    assertTrue(ClonableWithoutInitData(clone).initDone());
   }
 
   function test__deployWithInitData() public {
@@ -65,6 +68,10 @@ contract CloneFactoryTest is Test {
     address clone = factory.deploy(template, initData);
 
     assertEq(ClonableWithInitData(clone).val(), 100);
+
+    clone = factory.deploy(template, abi.encodeCall(ClonableWithInitData.initialize, (200)));
+
+    assertEq(ClonableWithInitData(clone).val(), 200);
   }
 
   function test__deploy_nonOwner_failed() public {

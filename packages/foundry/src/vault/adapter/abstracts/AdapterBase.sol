@@ -23,7 +23,7 @@ import { OwnedUpgradeable } from "../../../utils/OwnedUpgradeable.sol";
  * All specific interactions for the underlying protocol need to be overriden in the actual implementation.
  * The adapter can be initialized with a strategy that can perform additional operations. (Leverage, Compounding, etc.)
  */
-contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeable, EIP165, OnlyStrategy {
+abstract contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeable, EIP165, OnlyStrategy {
   using SafeERC20 for IERC20;
   using Math for uint256;
 
@@ -44,7 +44,7 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
    * @dev Each Adapter implementation should implement checks to make sure that the adapter is wrapping the underlying protocol correctly.
    * @dev If a strategy is provided, it will be verified to make sure it implements the required functions.
    */
-  function __AdapterBase_init(bytes memory popERC4626InitData) public initializer {
+  function __AdapterBase_init(bytes memory popERC4626InitData) internal onlyInitializing {
     (
       address asset,
       address _owner,
@@ -111,6 +111,8 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     return assets;
   }
 
+  event log(uint256 a);
+
   /**
    * @notice Deposit `assets` into the underlying protocol and mints vault shares to `receiver`.
    * @dev Executes harvest if `harvestCooldown` is passed since last invocation.
@@ -123,9 +125,12 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
   ) internal virtual override {
     IERC20(asset()).safeTransferFrom(caller, address(this), assets);
 
+    uint256 underlyingBalance_ = _underlyingBalance();
+    emit log(underlyingBalance_);
     _protocolDeposit(assets, shares);
     // Update the underlying balance to prevent inflation attacks
-    underlyingBalance = _underlyingBalance();
+    emit log(_underlyingBalance());
+    underlyingBalance += _underlyingBalance() - underlyingBalance_;
 
     _mint(receiver, shares);
 
@@ -189,9 +194,10 @@ contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedUpgradeabl
     }
 
     if (!paused()) {
+      uint256 underlyingBalance_ = _underlyingBalance();
       _protocolWithdraw(assets, shares);
       // Update the underlying balance to prevent inflation attacks
-      underlyingBalance = _underlyingBalance();
+      underlyingBalance -= underlyingBalance_ - _underlyingBalance();
     }
 
     _burn(owner, shares);
