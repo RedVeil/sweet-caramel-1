@@ -117,9 +117,9 @@ contract CompoundV2AdapterTest is AbstractAdapterTest {
     adapter.deposit(defaultAmount, bob);
 
     // Skip a year
-    vm.warp(block.timestamp + 365 days);
+    vm.warp(block.timestamp + 365.25 days);
 
-    uint256 interest = getApy();
+    // uint256 interest = getApy();
     uint256 expectedFee = adapter.convertToShares((defaultAmount * 5e16) / 1e18);
     uint256 callTime = block.timestamp;
 

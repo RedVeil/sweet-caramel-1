@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.15;
 
-import { LibFuse, CToken } from "../../../../../lib/libcompound/src/LibFuse.sol";
-
 interface ICToken {
   /**
    * @dev Returns the address of the underlying asset of this cToken
@@ -21,17 +19,17 @@ interface ICToken {
 
   function balanceOf(address) external view returns (uint256);
 
-  // function underlyingBalanceOf(address, address) external view returns (uint256) {
-  //   CToken token = CToken(token);
-  //   return LibFuse.viewUnderlyingBalanceOf(token, user);
-  // }
-
   /**
    * @dev Send underlying to mint cToken.
    **/
   function mint(uint256) external;
 
   function redeem(uint256) external;
+
+  /**
+   * @dev Returns exchange rate from the underlying to the cToken.
+   **/
+  function exchangeRateStored() external view returns (uint256);
 }
 
 interface IComptroller {
