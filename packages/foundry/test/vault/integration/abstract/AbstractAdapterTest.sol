@@ -351,6 +351,7 @@ contract AbstractAdapterTest is PropertyTest {
 
     vm.startPrank(bob);
     uint256 shares = adapter.deposit(defaultAmount, bob);
+
     uint256 assets = adapter.redeem(shares, bob, bob);
     vm.stopPrank();
 
@@ -384,6 +385,7 @@ contract AbstractAdapterTest is PropertyTest {
 
     vm.startPrank(bob);
     uint256 assets1 = adapter.mint(defaultAmount, bob);
+    emit log("ping");
     uint256 assets2 = adapter.redeem(defaultAmount, bob, bob);
     vm.stopPrank();
 

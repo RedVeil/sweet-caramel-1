@@ -248,6 +248,13 @@ abstract contract AdapterBase is ERC4626Upgradeable, PausableUpgradeable, OwnedU
   }
 
   /**
+   * @notice View underlying balance held in wrapped protocol token.
+   * @dev This is an optional function for protocols that wrap assets in a different denomination than protocol token.
+   * @dev Returns the underlying balance of assets held in protocol token.
+   */
+  function viewUnderlyingBalanceOf(address token, address user) public view virtual returns (uint256) {}
+
+  /**
    * @notice Simulate the effects of a deposit at the current block, given current on-chain conditions.
    * @dev Return 0 if paused since no further deposits are allowed.
    * @dev Override this function if the underlying protocol has a unique deposit logic and/or deposit fees.
