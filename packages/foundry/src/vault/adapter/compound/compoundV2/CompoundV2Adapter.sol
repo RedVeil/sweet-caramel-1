@@ -102,7 +102,7 @@ contract CompoundV2Adapter is AdapterBase, WithRewards {
   /// @notice The amount of compound shares to withdraw given an mount of adapter shares
   function convertToUnderlyingShares(uint256, uint256 shares) public view override returns (uint256) {
     uint256 supply = totalSupply();
-    return supply == 0 ? shares : cToken.balanceOf(address(this)) / cToken.exchangeRateStored();
+    return supply == 0 ? shares : shares.mulDiv(cToken.balanceOf(address(this)), supply, Math.Rounding.Up);
   }
 
   function previewWithdraw(uint256 assets) public view override returns (uint256) {
